@@ -1,0 +1,60 @@
+{
+    "name": "zzzzzlc.github.io",
+    "version": "1.0.0",
+    "description": "project show skill",
+    "keywords": [
+        "blog",
+        "typescript",
+        "react"
+    ],
+    "homepage": "https://github.com/zzzzzlc/zzzzzlc.github.io#readme",
+    "bugs": {
+        "url": "https://github.com/zzzzzlc/zzzzzlc.github.io/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/zzzzzlc/zzzzzlc.github.io.git"
+    },
+    "license": " Apache-2.0",
+    "author": "zenglingchao",
+    "type": "module",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "vite",
+        "build": "tsc -b && vite build",
+        "lint": "eslint .",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "react": "^19.2.3",
+        "react-dom": "^19.2.3"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.39.2",
+        "@types/node": "^24.10.7",
+        "@types/react": "^19.2.8",
+        "@types/react-dom": "^19.2.3",
+        "@vitejs/plugin-react": "^5.1.2",
+        "eslint": "^9.39.2",
+        "eslint-plugin-react-hooks": "^7.0.1",
+        "eslint-plugin-react-refresh": "^0.4.25",
+        "globals": "^16.5.0",
+        "typescript": "~5.9.3",
+        "typescript-eslint": "^8.53.0",
+        "vite": "^7.3.1"
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "packageManager": "pnpm@8.8.0"
+}
