@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import react from '@vitejs/plugin-react';
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
     server: {
@@ -7,7 +7,6 @@ export default defineConfig({
     },
     build: {
         outDir: "dist",
-        entry: "src/main.ts",
     },
     plugins: [
         // Add your plugins here

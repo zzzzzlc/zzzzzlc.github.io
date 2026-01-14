@@ -1,0 +1,35 @@
+    // {
+    //     "files": [],
+    //     "references": [
+    //       { "path": "./tsconfig.app.json" },
+    //       { "path": "./tsconfig.node.json" }
+    //     ]
+    // }
+    {
+      "compilerOptions": {
+        "target": "ESNext", // 使用最新的 ECMAScript 版本
+        "module": "ESNext", // 使用 ES 模块
+        "moduleResolution": "bundler", // Node 模块解析策略
+        "strict": true, // 启用严格模式
+        "jsx": "react-jsx", // 支持 React JSX
+        "esModuleInterop": true, // 允许默认导入 CommonJS 模块
+        "skipLibCheck": true, // 跳过库文件类型检查
+        "forceConsistentCasingInFileNames": true, // 文件名大小写一致
+        "baseUrl": ".", // 设置基础路径
+        "paths": {
+          "@models/*": ["app/models/*"], // 配置路径别名
+          "@store/*": ["app/models/store/*"] // 配置路径别名
+        },
+        "outDir": "dist", // 输出目录
+        "rootDir": ".", // 项目根目录
+        "allowSyntheticDefaultImports": true // 允许合成默认导入
+      },
+      "include": [
+        "app/**/*", // 包含 app 目录下的所有文件
+        "vite.config.ts" // 包含 Vite 配置文件
+      ],
+      "exclude": [
+        "node_modules", // 排除 node_modules
+        "dist" // 排除输出目录
+      ]
+    }
