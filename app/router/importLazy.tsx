@@ -67,6 +67,11 @@ const routes: RouteObject[] = [
                 id: "主题定制",
                 element: React.createElement(React.lazy(() => import("../pages/theme"))),
             },
+            {
+                path: "watermark",
+                id: "水印工具",
+                element: React.createElement(React.lazy(() => import("../pages/watermark"))),
+            },
         ],
     },
 ];

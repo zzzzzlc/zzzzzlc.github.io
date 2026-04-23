@@ -9,6 +9,13 @@ export interface Project {
 
 const projects: Project[] = [
     {
+        name: "水印工具",
+        description: "在线水印生成工具，支持页面水印、图片水印下载、内容区域水印，可自定义文本、颜色、旋转、透明度等参数。",
+        internalPath: "/watermark",
+        tags: ["React", "antd", "Canvas"],
+        language: "TypeScript",
+    },
+    {
         name: "主题定制",
         description: "在线主题定制工具，可自定义主色调、功能色、字号、圆角、字体，实时预览并导出 CSS 变量。",
         internalPath: "/theme",
