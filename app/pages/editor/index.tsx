@@ -1,2 +1,3 @@
-import CodeEditor from "./CodeEditor";
-import RichTextEditor from "./RichTextEditor";
+// Editor barrel export
+export { default as CodeEditor } from "./CodeEditor";
+export { default as RichTextEditor } from "./RichTextEditor";

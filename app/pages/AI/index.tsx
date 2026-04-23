@@ -1,28 +1,60 @@
 import React  from "react";
-import { Layout } from "antd"
-import Sider from "antd/es/layout/Sider";
-import { Content } from "antd/es/layout/layout";
-import Chat, { MessageProps } from "@chatui/core";
+import { Layout, Tabs} from "antd"
+import Chat, { Bubble, useMessages } from '@chatui/core';
+import type { MessageProps } from '@chatui/core';
+// 引入样式
+import '@chatui/core/dist/index.css'
 
 function AIComponent() {
-    const handleSend = (type: string, content: string) => {
-        console.log("发送消息:", type, content);
+    const { messages, appendMsg } = useMessages([]);
+    function handleSend(type: string, val:string) {
+      if (type === 'text' && val.trim()) {
+        appendMsg({
+          type: 'text',
+          content: { text: val },
+          position: 'right',
+        });
+
+        setTimeout(() => {
+          appendMsg({
+            type: 'text',
+            content: { text: 'Bala bala' },
+          });
+        }, 1000);
+      }
     }
+  
+    function renderMessageContent(msg:MessageProps) {
+      const { content } = msg;
+      return <Bubble content={content.text} />;
+    }
+  
   return (
-    <Layout>
-        <Sider>
+    <Layout style={{height: "100vh"}}>
             {/* 侧边栏内容 ai chat聊天列表*/}
-        </Sider>
-        <Content>
-            {/* 主要内容 ai chat聊天窗口*/}
-            <Chat
-                onSend={handleSend} 
-                messages={[]} 
-                renderMessageContent={(message: MessageProps): React.ReactNode =>{
-                    throw new Error("Function not implemented.")
-                } }            
+            <Tabs
+                tabPlacement="start"
+                type="editable-card"
+                items={[
+                    {
+                        key: '1',
+                        label: `聊天列表`,
+                        children: 
+                        <Chat
+                            navbar={{ title: '智能助理' }}
+                            messages={messages}
+                            renderMessageContent={renderMessageContent}
+                            onSend={handleSend}       
+                        />,
+                    },
+                    {
+                        key: '2',
+                        label: `设置`,
+                        children: <div>设置内容</div>,
+                    },
+                ]}
             />
-        </Content>
+      
     </Layout>
   );
 }

@@ -7,7 +7,7 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 
 //个性化定制 ESLint 配置
 export default defineConfig([
-    globalIgnores(['dist']),
+    globalIgnores(['dist', '.generated']),
     {
         files: ['**/*.{ts,tsx}'],
         extends: [

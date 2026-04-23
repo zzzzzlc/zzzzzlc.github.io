@@ -17,16 +17,22 @@
         "forceConsistentCasingInFileNames": true, // 文件名大小写一致
         "baseUrl": ".", // 设置基础路径
         "paths": {
-          "@models/*": ["app/models/*"], // 配置路径别名
-          "@store/*": ["app/models/store/*"] // 配置路径别名
+          "@models/*": ["app/models/*"],
+          "@store/*": ["app/models/store/*"],
+          "@components/*": ["component/*"],
+          "@pages/*": ["app/pages/*"],
+          "@content/*": ["content/*"]
         },
         "outDir": "dist", // 输出目录
         "rootDir": ".", // 项目根目录
         "allowSyntheticDefaultImports": true // 允许合成默认导入
       },
       "include": [
-        "app/**/*", // 包含 app 目录下的所有文件
-        "vite.config.ts" // 包含 Vite 配置文件
+        "app/**/*",
+        "component/**/*",
+        "content/**/*",
+        "vite-env.d.ts",
+        "vite.config.ts"
       ],
       "exclude": [
         "node_modules", // 排除 node_modules
