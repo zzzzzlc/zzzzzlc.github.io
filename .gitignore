@@ -28,3 +28,4 @@ dist-ssr
 
 #environment variables
 .env
+.claude/settings.local.json

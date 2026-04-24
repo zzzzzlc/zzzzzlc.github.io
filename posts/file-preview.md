@@ -1,5 +1,5 @@
 ---
-title: "前端文件预览解决方案全攻略"
+title: "文件预览解决方案"
 date: "2026-04-23"
 tags:
   - 文件预览
@@ -9,8 +9,7 @@ tags:
 category: "前端进阶"
 summary: "全面梳理前端文件预览技术方案，涵盖 PDF、Word、Excel、PPT、图片、音视频等主流文档类型的预览实现方式与最佳实践。"
 ---
-
-# 前端文件预览解决方案全攻略
+# 文件预览解决方案
 
 在日常业务系统中，文件预览是最常见的需求之一。用户上传或接收到文件后，往往需要在线预览而非下载查看。本文将系统梳理前端各类文档的预览方案，涵盖 PDF、Word、Excel、PPT、图片和音视频等主流格式。
 
@@ -20,7 +19,7 @@ PDF 是文档预览中最基础也最成熟的场景。
 
 ### 1.1 PDF.js
 
- Mozilla 出品的开源 PDF 渲染引擎，是目前最主流的纯前端 PDF 预览方案。
+Mozilla 出品的开源 PDF 渲染引擎，是目前最主流的纯前端 PDF 预览方案。
 
 ```bash
 npm install pdfjs-dist
@@ -51,11 +50,13 @@ async function renderPDF(url: string, container: HTMLElement) {
 ```
 
 **优点：**
+
 - 纯前端渲染，无需后端支持
 - 支持文本选择、搜索、缩放
 - 社区活跃，生态完善
 
 **缺点：**
+
 - 大文件渲染较慢，内存占用高
 - 复杂排版（表格、表单）可能存在偏差
 
@@ -475,13 +476,14 @@ function Gallery({ images }: { images: { src: string; alt: string }[] }) {
 
 ### 5.3 特殊图片格式
 
-| 格式 | 说明 | 方案 |
-|------|------|------|
-| PSD | Photoshop 文件 | `psd.js` 纯前端解析 |
-| SVG | 矢量图 | 直接 `<img>` 或 `dangerouslySetInnerHTML` |
-| HEIC | 苹果图片 | `heic2any` 转换为 JPEG 后预览 |
-| WebP | 新一代图片 | 现代浏览器原生支持 |
-| TIFF | 高质量位图 | `utif.js` 解析渲染 |
+
+| 格式 | 说明           | 方案                                     |
+| ---- | -------------- | ---------------------------------------- |
+| PSD  | Photoshop 文件 | `psd.js` 纯前端解析                      |
+| SVG  | 矢量图         | 直接`<img>` 或 `dangerouslySetInnerHTML` |
+| HEIC | 苹果图片       | `heic2any` 转换为 JPEG 后预览            |
+| WebP | 新一代图片     | 现代浏览器原生支持                       |
+| TIFF | 高质量位图     | `utif.js` 解析渲染                       |
 
 ```typescript
 // HEIC 转换示例
@@ -546,12 +548,13 @@ function initPlayer(container: HTMLElement, src: string) {
 
 ### 6.3 流媒体格式支持
 
-| 格式 | 方案 |
-|------|------|
-| HLS (.m3u8) | `hls.js` |
-| FLV | `flv.js` |
-| DASH | `dash.js` |
-| WebRTC | 浏览器原生 API |
+
+| 格式        | 方案           |
+| ----------- | -------------- |
+| HLS (.m3u8) | `hls.js`       |
+| FLV         | `flv.js`       |
+| DASH        | `dash.js`      |
+| WebRTC      | 浏览器原生 API |
 
 ```typescript
 // HLS 播放示例
@@ -741,16 +744,17 @@ export default function FilePreview({ file, url }: FilePreviewProps) {
 
 ## 九、方案对比与选型建议
 
-| 文档类型 | 纯前端方案 | 还原度 | 推荐方案 |
-|----------|-----------|--------|----------|
-| PDF | PDF.js / react-pdf | 高 | react-pdf（React 项目） |
-| Word | mammoth / docx-preview | 中 | docx-preview（预览） / LibreOffice 转 PDF（高保真） |
-| Excel | SheetJS / Univer | 中高 | SheetJS（只读） / Univer（需要编辑） |
-| PPT | pptxjs | 低 | LibreOffice 转 PDF / KKFileView / ONLYOFFICE |
-| 图片 | 原生 + lightbox | 高 | yet-another-react-lightbox |
-| 视频 | video.js / hls.js | 高 | video.js + hls.js |
-| 音频 | 原生 audio | 高 | HTML5 audio |
-| 代码 | Monaco Editor | 高 | Monaco Editor（只读模式） |
+
+| 文档类型 | 纯前端方案             | 还原度 | 推荐方案                                            |
+| -------- | ---------------------- | ------ | --------------------------------------------------- |
+| PDF      | PDF.js / react-pdf     | 高     | react-pdf（React 项目）                             |
+| Word     | mammoth / docx-preview | 中     | docx-preview（预览） / LibreOffice 转 PDF（高保真） |
+| Excel    | SheetJS / Univer       | 中高   | SheetJS（只读） / Univer（需要编辑）                |
+| PPT      | pptxjs                 | 低     | LibreOffice 转 PDF / KKFileView / ONLYOFFICE        |
+| 图片     | 原生 + lightbox        | 高     | yet-another-react-lightbox                          |
+| 视频     | video.js / hls.js      | 高     | video.js + hls.js                                   |
+| 音频     | 原生 audio             | 高     | HTML5 audio                                         |
+| 代码     | Monaco Editor          | 高     | Monaco Editor（只读模式）                           |
 
 ### 选型原则
 

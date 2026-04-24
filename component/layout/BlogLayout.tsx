@@ -1,6 +1,5 @@
 import React from 'react';
-import { Layout as AntLayout, Menu, Typography, Button } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Layout as AntLayout, Menu, Typography } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router';
 
 const { Header, Content, Footer } = AntLayout;
@@ -20,25 +19,16 @@ function BlogLayout() {
         ? 'home'
         : location.pathname.replace('/', '') || 'home';
 
-    const showBack = location.pathname !== '/';
-
     return (
         <AntLayout style={{ minHeight: '100vh' }}>
             <Header style={{ display: 'flex', alignItems: 'center', padding: '0 24px' }}>
-                {showBack && (
-                    <Button
-                        type="text"
-                        icon={<ArrowLeftOutlined />}
-                        onClick={() => navigate(-1)}
-                        style={{ color: '#fff', marginRight: 16 }}
-                    />
-                )}
                 <Typography.Title
                     level={4}
                     style={{ color: '#fff', margin: 0, marginRight: 40, cursor: 'pointer', whiteSpace: 'nowrap' }}
                     onClick={() => navigate('/')}
                 >
-                    zenglingchao
+                    ZLC BLOG
+                    {/* logo区域 */}
                 </Typography.Title>
                 <Menu
                     theme="dark"
@@ -48,7 +38,7 @@ function BlogLayout() {
                         ...item,
                         onClick: () => navigate(item.key === 'home' ? '/' : `/${item.key}`),
                     }))}
-                    style={{ flex: 1, minWidth: 0 }}
+                    style={{ flex: 1, minWidth: 0, fontSize: 24 }}
                 />
             </Header>
             <Content style={{ padding: '24px 48px', maxWidth: 1200, margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
