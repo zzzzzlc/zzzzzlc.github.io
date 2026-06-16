@@ -45,7 +45,7 @@ export default function CodeEditor() {
                     />
                 </Col>
             </Row>
-            <Card bodyStyle={{ padding: 0 }}>
+            <Card styles={{ body: { padding: 0 } }}>
                 <Editor
                     height="70vh"
                     language={language}

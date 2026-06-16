@@ -28,7 +28,7 @@ export default function GobackButton() {
                 background: '#fff',
                 color: '#333',
             }}
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/')}
             title="返回"
         >
             <ArrowLeftOutlined />

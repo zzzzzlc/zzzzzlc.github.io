@@ -59,7 +59,7 @@ const routes: RouteObject[] = [
             },
             {
                 path: "amap",
-                id: "高德地图",
+                id: "地图导航",
                 element: React.createElement(React.lazy(() => import("../pages/amap"))),
             },
             {
@@ -71,6 +71,11 @@ const routes: RouteObject[] = [
                 path: "watermark",
                 id: "水印工具",
                 element: React.createElement(React.lazy(() => import("../pages/watermark"))),
+            },
+            {
+                path: "bpmn-editor",
+                id: "BPMN 流程设计",
+                element: React.createElement(React.lazy(() => import("../pages/bpmn-editor"))),
             },
         ],
     },

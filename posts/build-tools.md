@@ -1,9 +1,10 @@
 ---
-title: "Webpack VS Vite"
-date: "2026-04-22"
-tags: ["Webpack", "Vite", "构建工具", "前端工程化"]
-category: "技术"
-summary: "深入对比 Webpack 与 Vite 的设计理念、核心原理与性能差异，并介绍如何从零开发一个简易打包工具来理解构建的本质。"
+title: Webpack VS Vite
+date: '2026-04-22'
+tags:
+  - 工程化
+category: 技术
+summary: 深入对比 Webpack 与 Vite 的设计理念、核心原理与性能差异，并介绍如何从零开发一个简易打包工具来理解构建的本质。
 ---
 # Webpack 与 Vite 对比
 

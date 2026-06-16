@@ -1,9 +1,13 @@
 ---
-title: "Docker & Docker Compose 实战"
-date: "2026-04-22"
-tags: ["Docker", "前端工程化", "DevOps", "容器化"]
-category: "技术"
-summary: "从 Docker 基础概念讲起，详解前端项目如何编写 Dockerfile、利用多阶段构建优化镜像、配置 Nginx 部署 SPA，以及使用 Docker Compose 编排多服务。"
+title: Docker & Docker Compose 实战
+date: '2026-04-22'
+tags:
+  - DevOps
+  - 工程化
+category: 技术
+summary: >-
+  从 Docker 基础概念讲起，详解前端项目如何编写 Dockerfile、利用多阶段构建优化镜像、配置 Nginx 部署 SPA，以及使用 Docker
+  Compose 编排多服务。
 ---
 # Docker /Docker Compose 实战
 

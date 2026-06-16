@@ -23,10 +23,10 @@ const projects: Project[] = [
         language: "TypeScript",
     },
     {
-        name: "高德地图",
-        description: "基于高德地图 JS API 的地图应用，支持地点搜索、城市定位、多图层切换（标准/卫星/暗色）。",
+        name: "地图导航 · WebGIS",
+        description: "基于 MapLibre GL + OpenStreetMap 的开源 WebGIS 导航应用，支持起点终点搜索、OSRM 路线规划（驾车/步行/骑行）、转向指示、多底图切换（OSM/Esri 卫星/CARTO 暗色），全程无需 API Key。",
         internalPath: "/amap",
-        tags: ["React", "高德地图", "地图"],
+        tags: ["React", "MapLibre GL", "WebGIS", "OSM"],
         language: "TypeScript",
     },
     {
@@ -55,6 +55,13 @@ const projects: Project[] = [
         description: "基于 HTML5 Canvas 的在线绘图工具，支持画笔、形状绘制、撤销重做、导出图片。",
         internalPath: "/canvas",
         tags: ["React", "Canvas", "TypeScript"],
+        language: "TypeScript",
+    },
+    {
+        name: "BPMN 流程设计",
+        description: "基于 BPMN.js 的在线流程设计器，支持 BPMN 2.0 标准流程图绘制、导入导出 BPMN/SVG 文件、预置审批流程模板。",
+        internalPath: "/bpmn-editor",
+        tags: ["React", "BPMN.js", "Workflow"],
         language: "TypeScript",
     },
     {

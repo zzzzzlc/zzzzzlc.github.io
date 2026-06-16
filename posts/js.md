@@ -1,9 +1,13 @@
 ---
-title: "JavaScript & ES6+"
-date: "2026-04-22"
-tags: ["JavaScript", "前端基础", "ES6"]
-category: "技术"
-summary: "从 JavaScript 的诞生讲起，梳理其发展历史与版本演进，详解变量、类型、函数、作用域、闭包、原型链等核心概念，并全面介绍 ES6+ 带来的现代化特性。"
+title: JavaScript & ES6+
+date: '2026-04-22'
+tags:
+  - JavaScript
+  - 前端
+category: 技术
+summary: >-
+  从 JavaScript 的诞生讲起，梳理其发展历史与版本演进，详解变量、类型、函数、作用域、闭包、原型链等核心概念，并全面介绍 ES6+
+  带来的现代化特性。
 ---
 # JavaScript & ES6
 

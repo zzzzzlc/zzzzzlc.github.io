@@ -206,7 +206,7 @@ export default function WatermarkTool() {
 
     // --- 配置面板 ---
     const renderConfigPanel = () => (
-        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+        <Space orientation="vertical" style={{ width: '100%' }} size="middle">
             <div>
                 <Typography.Text strong>水印文本</Typography.Text>
                 <Input

@@ -1,15 +1,14 @@
 ---
-title: "AI 模型应用进阶：RAG、Agent 与工程化实践"
-date: "2026-04-26"
+title: AI 模型应用进阶：RAG、Agent 与工程化实践
+date: '2026-04-26'
 tags:
   - AI
-  - RAG
-  - Agent
-  - 向量数据库
-  - Prompt Engineering
+  - AI Agent
   - 工程化
-category: "AI 工程"
-summary: "从实际业务中 AI 落地的瓶颈出发，对比分析 RAG 检索增强、Agent 工具调用、高级提示工程等进阶方案，涵盖向量数据库选型、RAG 架构设计、Function Calling 实现等核心能力。"
+category: AI 工程
+summary: >-
+  从实际业务中 AI 落地的瓶颈出发，对比分析 RAG 检索增强、Agent 工具调用、高级提示工程等进阶方案，涵盖向量数据库选型、RAG
+  架构设计、Function Calling 实现等核心能力。
 ---
 
 # AI 模型应用进阶：RAG、Agent 与工程化实践

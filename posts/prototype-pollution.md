@@ -1,14 +1,13 @@
 ---
-title: "JavaScript 原型链投毒原理与防御方案"
-date: "2026-04-24"
+title: JavaScript 原型链投毒原理与防御方案
+date: '2026-04-24'
 tags:
-  - 原型链
-  - 安全
   - JavaScript
-  - 深拷贝
-  - 输入校验
-category: "前端安全"
-summary: "从真实攻击案例出发，深入剖析 JavaScript 原型链投毒的攻击原理，对比分析冻结原型、输入过滤、安全深拷贝、Proxy 拦截等多种防御方案，涵盖 Node.js 和浏览器端的实战防御策略。"
+  - 前端
+category: 前端安全
+summary: >-
+  从真实攻击案例出发，深入剖析 JavaScript 原型链投毒的攻击原理，对比分析冻结原型、输入过滤、安全深拷贝、Proxy 拦截等多种防御方案，涵盖
+  Node.js 和浏览器端的实战防御策略。
 ---
 
 # JavaScript 原型链投毒原理与防御方案

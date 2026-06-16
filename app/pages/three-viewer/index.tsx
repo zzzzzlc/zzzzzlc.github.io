@@ -311,7 +311,7 @@ export default function ThreeViewer() {
                     </Space>
                 </Space>
             </Card>
-            <Card bodyStyle={{ padding: 0, overflow: 'hidden' }}>
+            <Card styles={{ body: { padding: 0, overflow: 'hidden' } }}>
                 <div
                     ref={containerRef}
                     style={{ width: '100%', height: '75vh' }}

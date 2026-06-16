@@ -7,6 +7,7 @@ import {
     CheckOutlined, UndoOutlined, CopyOutlined,
     BgColorsOutlined, FontSizeOutlined, BorderOutlined,
 } from '@ant-design/icons';
+import { useThemeMode } from '../../theme/ThemeProvider';
 
 interface ThemeConfig {
     mode: 'light' | 'dark';
@@ -69,6 +70,7 @@ const FONT_OPTIONS = [
 const STORAGE_KEY = 'blog-theme-config';
 
 export default function ThemeCustomizer() {
+    const { mode: globalMode, setMode: setGlobalMode } = useThemeMode();
     const [theme, setTheme] = useState<ThemeConfig>(() => {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
@@ -77,7 +79,18 @@ export default function ThemeCustomizer() {
         return DEFAULT_LIGHT;
     });
 
-    const isDark = theme.mode === 'dark';
+    // mode 字段始终跟随全局 Provider（单一数据源）
+    useEffect(() => {
+        setTheme(prev => ({
+            ...prev,
+            mode: globalMode,
+            ...(globalMode === 'dark'
+                ? { colorBgBase: '#141414', colorTextBase: '#ffffff' }
+                : { colorBgBase: '#ffffff', colorTextBase: '#000000' }),
+        }));
+    }, [globalMode]);
+
+    const isDark = globalMode === 'dark';
     const bgCard = isDark ? '#1f1f1f' : '#ffffff';
     const bgBody = isDark ? '#141414' : '#f5f5f5';
     const textBase = theme.colorTextBase;
@@ -97,7 +110,7 @@ export default function ThemeCustomizer() {
     };
 
     const handleModeChange = (mode: 'light' | 'dark') => {
-        setTheme(mode === 'dark' ? DEFAULT_DARK : DEFAULT_LIGHT);
+        setGlobalMode(mode);
     };
 
     const handleExport = () => {
@@ -125,14 +138,14 @@ export default function ThemeCustomizer() {
                 {/* 左侧配置面板 */}
                 <Col xs={24} lg={10}>
                     <Card title={<><BgColorsOutlined /> 主题配置</>} style={{ marginBottom: 16 }}>
-                        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                        <Space orientation="vertical" style={{ width: '100%' }} size="middle">
 
                             {/* 模式切换 */}
                             <div>
                                 <Typography.Text strong>模式</Typography.Text>
                                 <div style={{ marginTop: 8 }}>
                                     <Segmented
-                                        value={theme.mode}
+                                        value={globalMode}
                                         onChange={v => handleModeChange(v as 'light' | 'dark')}
                                         options={[
                                             { label: '浅色', value: 'light' },

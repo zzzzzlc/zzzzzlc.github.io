@@ -103,7 +103,7 @@ export default function SvgEditor() {
                                 <Button size="small" icon={<UndoOutlined />} onClick={handleReset}>重置</Button>
                             </Space>
                         }
-                        bodyStyle={{ padding: 0 }}
+                        styles={{ body: { padding: 0 } }}
                     >
                         <Editor
                             height="65vh"

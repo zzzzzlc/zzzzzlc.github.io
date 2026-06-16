@@ -1,0 +1,45 @@
+/* BPMN.js 工具栏（palette）显示修正 */
+
+/* 确保左侧 palette 不被容器裁剪 */
+.bpmn-container .djs-palette {
+    /* palette 宽度足够展示所有图标 */
+    width: 56px;
+}
+
+/* palette 中的工具图标分组完整显示 */
+.bpmn-container .djs-palette .group {
+    /* 每组工具之间留足间距 */
+    margin-bottom: 8px;
+}
+
+/* palette 工具图标可换行，避免被截断 */
+.bpmn-container .djs-palette .entry {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+}
+
+/* palette 折叠展开按钮 */
+.bpmn-container .djs-palette .toggle {
+    width: 100%;
+    height: 28px;
+}
+
+/* 右侧属性面板的展开区域不裁剪 */
+.bpmn-container .djs-popup {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* 画布 SVG 不被裁剪 */
+.bpmn-container svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* 选中元素的高亮边框更明显 */
+.bpmn-container .djs-element.selected .djs-outline {
+    stroke: #4096ff;
+    stroke-width: 2px;
+}

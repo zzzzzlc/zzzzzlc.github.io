@@ -4,6 +4,13 @@ import { Typography, Tag, Divider, Spin } from 'antd';
 import postMap from 'virtual:post-map';
 import TopButton from '@components/TopButton';
 import GobackButton from '@components/GobackButton';
+import TableOfContents from '@components/TableOfContents';
+
+interface TocItem {
+    id: string;
+    text: string;
+    level: number;
+}
 
 interface PostData {
     frontmatter: {
@@ -37,6 +44,29 @@ function usePost(slug: string | undefined) {
     return state;
 }
 
+/**
+ * 在 HTML 字符串中给 h2/h3 注入 id，同时提取目录项
+ * 这样 id 是 HTML 的一部分，不会被 React 重渲染覆盖
+ */
+function processHtml(html: string): { html: string; tocItems: TocItem[] } {
+    const items: TocItem[] = [];
+    let idx = 0;
+
+    const processed = html.replace(
+        /<(h[23])(\s[^>]*)?>([\s\S]*?)<\/\1>/gi,
+        (match, tag, attrs, content) => {
+            const text = content.replace(/<[^>]+>/g, '').trim();
+            if (!text) return match;
+            const id = `toc-${idx++}`;
+            items.push({ id, text, level: parseInt(tag[1], 10) });
+            const attrStr = attrs || '';
+            return `<${tag} id="${id}"${attrStr}>${content}</${tag}>`;
+        }
+    );
+
+    return { html: processed, tocItems: items };
+}
+
 export default function BlogPost() {
     const { slug } = useParams<{ slug: string }>();
     const state = usePost(slug);
@@ -50,7 +80,9 @@ export default function BlogPost() {
 
     if (state.status === 'notfound') return <Navigate to="/" replace />;
     if (state.status === 'loading') return <div style={{ textAlign: 'center', padding: 100 }}><Spin size="large" /></div>;
+
     const post = state.post;
+    const { html: processedHtml, tocItems } = processHtml(post.html);
 
     return (
         <article>
@@ -62,10 +94,14 @@ export default function BlogPost() {
                     <Tag key={tag}>{tag}</Tag>
                 ))}
             </div>
-            <div
-                className="markdown-body"
-                dangerouslySetInnerHTML={{ __html: post.html }}
-            />
+            <div style={{ display: 'flex', gap: 40, alignItems: 'flex-start' }}>
+                <div
+                    className="markdown-body"
+                    style={{ flex: 1, minWidth: 0 }}
+                    dangerouslySetInnerHTML={{ __html: processedHtml }}
+                />
+                <TableOfContents items={tocItems} />
+            </div>
 
             {/* 悬浮按钮：返回 */}
             <GobackButton />

@@ -212,7 +212,7 @@ export default function CanvasBoard() {
                     </Tooltip>
                 </Space>
             </Card>
-            <Card bodyStyle={{ padding: 0, overflow: 'hidden' }}>
+            <Card styles={{ body: { padding: 0, overflow: 'hidden' } }}>
                 <canvas
                     ref={canvasRef}
                     style={{

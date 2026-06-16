@@ -1,9 +1,11 @@
 ---
-title: "MD 插件"
-date: "2026-04-22"
-tags: ["Vite", "React", "Markdown", "技术"]
-category: "技术"
-summary: "介绍如何通过自定义 Vite 插件，在构建时解析 Markdown 文件并生成虚拟模块，实现静态博客。"
+title: MD 插件
+date: '2026-04-22'
+tags:
+  - React
+  - 工程化
+category: 技术
+summary: 介绍如何通过自定义 Vite 插件，在构建时解析 Markdown 文件并生成虚拟模块，实现静态博客。
 ---
 # Vite 插件 MD文档解析
 

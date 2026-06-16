@@ -1,17 +1,13 @@
 ---
-title: "前端状态库对比与源码解析"
-date: "2026-04-26"
+title: 前端状态库对比与源码解析
+date: '2026-04-26'
 tags:
   - React
-  - 状态管理
-  - Redux
-  - Zustand
-  - Jotai
-  - Valtio
-  - MobX
-  - 源码解析
-category: "前端工程"
-summary: "从 React 状态管理的痛点出发，对比 Redux Toolkit、Zustand、Jotai、Valtio、MobX 五大状态库的核心原理与适用场景，深入解析每个库的源码实现（发布订阅、不可变更新、原子化、代理响应式），给出选型建议与边界。"
+  - 前端
+category: 前端工程
+summary: >-
+  从 React 状态管理的痛点出发，对比 Redux Toolkit、Zustand、Jotai、Valtio、MobX
+  五大状态库的核心原理与适用场景，深入解析每个库的源码实现（发布订阅、不可变更新、原子化、代理响应式），给出选型建议与边界。
 ---
 
 # 前端状态库对比与源码解析

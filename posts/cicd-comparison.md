@@ -1,15 +1,12 @@
 ---
-title: "CI/CD 方案实践对比：从选型到落地"
-date: "2026-04-26"
+title: CI/CD 方案实践对比：从选型到落地
+date: '2026-04-26'
 tags:
-  - CI/CD
-  - GitHub Actions
-  - GitLab CI
-  - Jenkins
-  - Docker
-  - 自动化部署
-category: "工程化"
-summary: "从团队协作的实际痛点出发，对比 Jenkins、GitLab CI、GitHub Actions、CircleCI、Drone 五大 CI/CD 平台的核心能力与适用场景，覆盖流水线设计、Docker 构建优化、部署策略（蓝绿/金丝雀/滚动）、多环境管理，给出明确的选型建议与边界。"
+  - DevOps
+category: 工程化
+summary: >-
+  从团队协作的实际痛点出发，对比 Jenkins、GitLab CI、GitHub Actions、CircleCI、Drone 五大 CI/CD
+  平台的核心能力与适用场景，覆盖流水线设计、Docker 构建优化、部署策略（蓝绿/金丝雀/滚动）、多环境管理，给出明确的选型建议与边界。
 ---
 
 # CI/CD 方案实践对比：从选型到落地

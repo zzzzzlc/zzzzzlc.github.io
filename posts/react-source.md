@@ -1,9 +1,13 @@
 ---
-title: "React 源码解读"
-date: "2026-04-23"
-tags: ["React", "源码", "框架原理", "前端"]
-category: "技术"
-summary: "从 React 的设计理念出发，梳理其发展历程与架构演进，深入解读 Fiber 架构、调和算法、Hooks 实现、并发模式等核心源码设计，并分析 React 19 的重大变化。"
+title: React 源码解读
+date: '2026-04-23'
+tags:
+  - React
+  - 前端
+category: 技术
+summary: >-
+  从 React 的设计理念出发，梳理其发展历程与架构演进，深入解读 Fiber 架构、调和算法、Hooks 实现、并发模式等核心源码设计，并分析 React
+  19 的重大变化。
 ---
 # React 源码解读
 

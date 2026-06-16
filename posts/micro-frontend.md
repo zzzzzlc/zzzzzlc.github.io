@@ -1,9 +1,12 @@
 ---
-title: "微前端解决方案"
-date: "2026-04-23"
-tags: ["微前端", "single-spa", "qiankun", "wujie", "micro-app", "架构"]
-category: "技术"
-summary: "深入对比 single-spa、qiankun、wujie、micro-app 四大微前端方案，从 JS 沙箱、CSS 隔离、应用通信三个维度分析差异，剖析各沙箱方案的实现原理与优缺点。"
+title: 微前端解决方案
+date: '2026-04-23'
+tags:
+  - 架构
+category: 技术
+summary: >-
+  深入对比 single-spa、qiankun、wujie、micro-app 四大微前端方案，从 JS 沙箱、CSS
+  隔离、应用通信三个维度分析差异，剖析各沙箱方案的实现原理与优缺点。
 ---
 # 微前端解决方案
 

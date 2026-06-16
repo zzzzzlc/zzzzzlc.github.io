@@ -1,9 +1,11 @@
 ---
-title: "Nginx"
-date: "2026-04-22"
-tags: ["Nginx", "服务器", "性能优化", "运维"]
-category: "技术"
-summary: "全面介绍 Nginx 核心配置、虚拟主机、反向代理、负载均衡、HTTPS、缓存策略、安全加固与性能调优，帮助构建稳定高效的 Web 服务。"
+title: Nginx
+date: '2026-04-22'
+tags:
+  - DevOps
+  - 性能优化
+category: 技术
+summary: 全面介绍 Nginx 核心配置、虚拟主机、反向代理、负载均衡、HTTPS、缓存策略、安全加固与性能调优，帮助构建稳定高效的 Web 服务。
 ---
 # Nginx
 

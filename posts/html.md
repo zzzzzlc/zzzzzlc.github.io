@@ -1,9 +1,10 @@
 ---
-title: "HTML"
-date: "2026-04-22"
-tags: ["HTML", "前端基础", "Web"]
-category: "技术"
-summary: "回顾 HTML 从 1.0 到 HTML5 的发展历程，并介绍文档结构、文本、列表、链接、图片、表格、表单、语义化等常用标签的使用方法。"
+title: HTML
+date: '2026-04-22'
+tags:
+  - 前端
+category: 技术
+summary: 回顾 HTML 从 1.0 到 HTML5 的发展历程，并介绍文档结构、文本、列表、链接、图片、表格、表单、语义化等常用标签的使用方法。
 ---
 # HTML
 
