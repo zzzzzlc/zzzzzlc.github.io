@@ -29,3 +29,5 @@ dist-ssr
 #environment variables
 .env
 .claude/settings.local.json
+#loacl test 
+global.css

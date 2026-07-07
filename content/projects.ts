@@ -72,6 +72,20 @@ const projects: Project[] = [
         language: "TypeScript",
     },
     {
+        name: "css实验室",
+        description: "用于测试css样式",
+        internalPath: "/css-test",
+        tags: ["css"],
+        language: "TypeScript",
+    },
+    {
+        name: "影视频播放器",
+        description: "在线影视频播放器，支持 URL 直链加载、本地文件上传、自定义控件（进度拖拽、倍速、循环、音量、快进快退）、画中画、全屏及键盘快捷键，视频音频双模式。",
+        internalPath: "/media-player",
+        tags: ["React", "Video", "Audio", "Media"],
+        language: "TypeScript",
+    },
+    {
         name: "zzzzzlc.github.io",
         description: "个人博客网站，使用 React + Vite + antd 构建，Markdown 文章在构建时编译。",
         url: "https://github.com/zzzzzlc/zzzzzlc.github.io",

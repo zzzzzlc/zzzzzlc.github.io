@@ -1,0 +1,99 @@
+/* ============ Projects 项目页（卡片化列表） ============ */
+
+.projects-header {
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid var(--border-secondary);
+}
+
+.projects-title {
+    margin: 0 0 6px !important;
+    font-size: var(--fs-xl) !important;
+    font-weight: 700 !important;
+    color: var(--text-base) !important;
+    line-height: var(--lh-tight);
+}
+
+.projects-subtitle {
+    font-size: var(--fs-sm);
+}
+
+.projects-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+/* 卡片化列表项：与全站卡片语言一致（bg-card + border + radius + hover） */
+.project-row {
+    display: block;
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius-md);
+    background: var(--bg-card);
+    border: 1px solid var(--border-secondary);
+    text-decoration: none;
+    color: var(--text-base);
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.project-row:not(.project-row-static):hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card);
+}
+
+.project-row-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.project-row-name {
+    font-size: var(--fs-md);
+    font-weight: 600;
+    color: var(--text-base);
+    transition: color 0.15s ease;
+}
+
+.project-row:not(.project-row-static):hover .project-row-name {
+    color: var(--accent);
+}
+
+.project-row-lang {
+    font-size: var(--fs-xs);
+    padding: 1px 8px;
+    border-radius: var(--radius-full);
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 500;
+}
+
+.project-row-arrow {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--text-secondary);
+    opacity: 0;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.project-row:not(.project-row-static):hover .project-row-arrow {
+    opacity: 1;
+    transform: translateX(2px);
+}
+
+.project-row-desc {
+    margin: 6px 0 var(--space-sm);
+    font-size: var(--fs-sm);
+    line-height: var(--lh-normal);
+    color: var(--text-secondary);
+}
+
+.project-row-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+

@@ -1,18 +1,30 @@
-import React, { useState, useMemo } from 'react';
-import { Row, Col, Card, Tag, Typography } from 'antd';
-import { useNavigate } from 'react-router';
+import { useState, useMemo } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import blogIndex from 'virtual:blog-index';
+import PageContainer from '../../../component/blog/PageContainer';
+import BlogTag from '../../../component/blog/BlogTag';
+import './categories.css';
+
+interface PostMeta {
+    slug: string;
+    title: string;
+    date?: string;
+    tags?: string[];
+    category?: string;
+    summary?: string;
+}
 
 export default function Categories() {
     const navigate = useNavigate();
-    const [activeCategory, setActiveCategory] = useState<string | null>(null);
+    const [searchParams] = useSearchParams();
+    const initialCat = searchParams.get('cat');
+    const [activeCategory, setActiveCategory] = useState<string | null>(initialCat);
 
     const categories = useMemo(() => {
         const cats = new Map<string, number>();
         blogIndex.forEach(post => {
-            if (post.category) {
-                cats.set(post.category, (cats.get(post.category) || 0) + 1);
-            }
+            const c = post.category || '未分类';
+            cats.set(c, (cats.get(c) || 0) + 1);
         });
         return Array.from(cats.entries()).map(([name, count]) => ({ name, count }));
     }, []);
@@ -24,56 +36,96 @@ export default function Categories() {
                 tags.set(tag, (tags.get(tag) || 0) + 1);
             });
         });
-        return Array.from(tags.entries()).map(([name, count]) => ({ name, count }));
+        return Array.from(tags.entries())
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count);
     }, []);
 
     const filtered = useMemo(() => {
-        if (!activeCategory) return blogIndex;
-        return blogIndex.filter(post => post.category === activeCategory);
+        const all = blogIndex as PostMeta[];
+        if (!activeCategory) return all;
+        return all.filter(post => (post.category || '未分类') === activeCategory);
     }, [activeCategory]);
 
     return (
-        <div>
-            <Typography.Title level={3}>分类</Typography.Title>
-            <div style={{ marginBottom: 16 }}>
-                <Tag
-                    color={!activeCategory ? 'blue' : undefined}
-                    style={{ cursor: 'pointer', fontSize: 14, padding: '4px 12px' }}
+        <PageContainer>
+            <header className="page-header">
+                <h1 className="page-title">分类</h1>
+                <p className="page-subtitle">共 {blogIndex.length} 篇文章 · {categories.length} 个分类</p>
+            </header>
+
+            {/* 分类过滤 pill 行（与首页一致的语言） */}
+            <section className="cat-filter" aria-label="分类过滤">
+                <button
+                    type="button"
+                    className={`home-tag home-tag-clickable${activeCategory === null ? ' home-tag-active' : ''}`}
                     onClick={() => setActiveCategory(null)}
                 >
-                    全部 ({blogIndex.length})
-                </Tag>
+                    全部 {blogIndex.length}
+                </button>
                 {categories.map(cat => (
-                    <Tag
+                    <button
                         key={cat.name}
-                        color={activeCategory === cat.name ? 'blue' : undefined}
-                        style={{ cursor: 'pointer', fontSize: 14, padding: '4px 12px' }}
+                        type="button"
+                        className={`home-tag home-tag-clickable${activeCategory === cat.name ? ' home-tag-active' : ''}`}
                         onClick={() => setActiveCategory(cat.name)}
                     >
-                        {cat.name} ({cat.count})
-                    </Tag>
+                        {cat.name} {cat.count}
+                    </button>
                 ))}
-            </div>
+            </section>
 
-            <Typography.Title level={4}>标签</Typography.Title>
-            <div style={{ marginBottom: 24 }}>
-                {allTags.map(tag => (
-                    <Tag key={tag.name} style={{ marginBottom: 8 }}>{tag.name} ({tag.count})</Tag>
-                ))}
-            </div>
+            {/* 标签云 */}
+            <section className="cat-tags-section">
+                <div className="cat-tags-title">标签</div>
+                <div className="cat-tag-cloud">
+                    {allTags.map(tag => (
+                        <BlogTag key={tag.name} tag={tag.name} size="small" />
+                    ))}
+                </div>
+            </section>
 
-            <Row gutter={[16, 16]}>
+            <h2 className="section-heading">
+                {activeCategory ?? '全部文章'}
+                <span className="cat-result-count">{filtered.length}</span>
+            </h2>
+
+            {/* 文章网格：3 列，复用共享 .post-card 卡片语言 */}
+            <div className="cat-post-grid">
                 {filtered.map(post => (
-                    <Col xs={24} sm={12} key={post.slug}>
-                        <Card hoverable onClick={() => navigate(`/post/${post.slug}`)}>
-                            <Card.Meta title={post.title} description={post.summary} />
-                            <div style={{ marginTop: 8 }}>
-                                {post.tags?.map((tag: string) => <Tag key={tag}>{tag}</Tag>)}
+                    <article
+                        key={post.slug}
+                        className="post-card"
+                        onClick={() => navigate(`/post/${post.slug}`)}
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') navigate(`/post/${post.slug}`);
+                        }}
+                    >
+                        {post.category && (
+                            <div className="post-card-meta">
+                                {post.date && <time className="post-card-date">{post.date}</time>}
+                                <span className="post-card-category">{post.category}</span>
                             </div>
-                        </Card>
-                    </Col>
+                        )}
+                        <Link
+                            to={`/post/${post.slug}`}
+                            className="post-card-title"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {post.title}
+                        </Link>
+                        {post.summary && <p className="post-card-summary">{post.summary}</p>}
+                        {post.tags && post.tags.length > 0 && (
+                            <div className="post-card-tags">
+                                {post.tags.map(tag => (
+                                    <BlogTag key={tag} tag={tag} size="small" />
+                                ))}
+                            </div>
+                        )}
+                    </article>
                 ))}
-            </Row>
-        </div>
+            </div>
+        </PageContainer>
     );
 }

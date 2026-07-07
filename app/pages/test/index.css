@@ -1,0 +1,217 @@
+/* 整个实验室铺满父容器 */
+.css-lab {
+    display: flex;
+    flex-direction: column;
+    /* 减去 Header(64) + Content padding(48) + Footer(预期) + 余量 */
+    height: calc(100vh - 200px);
+    min-height: 500px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+/* 顶栏：标题 + tab + 重置 */
+.css-lab-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.css-lab-bar h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.css-lab-tabs {
+    display: inline-flex;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.css-lab-tabs button {
+    padding: 4px 14px;
+    border: none;
+    background: transparent;
+    color: #475569;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1.6;
+    transition: background 0.15s;
+}
+
+.css-lab-tabs button + button {
+    border-left: 1px solid #e2e8f0;
+}
+
+.css-lab-tabs button:hover {
+    background: #f1f5f9;
+}
+
+.css-lab-tabs button.active {
+    background: #0ea5e9;
+    color: #fff;
+}
+
+.css-lab-reset {
+    margin-left: auto;
+    padding: 4px 12px;
+    border: 1px solid #fca5a5;
+    border-radius: 6px;
+    background: #fff;
+    color: #dc2626;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.15s;
+}
+
+.css-lab-reset:hover {
+    background: #fef2f2;
+}
+
+/* 主体：左右分栏 */
+.css-lab-main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 0;
+}
+
+.css-lab-editor {
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    min-width: 0;
+}
+
+/* Monaco 自适应高度 */
+.css-lab-editor > div,
+.css-lab-editor .monaco-editor {
+    width: 100%;
+    height: 100% !important;
+}
+
+.css-lab-preview {
+    display: flex;
+    min-width: 0;
+    background: #fff;
+}
+
+.css-lab-preview iframe {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* 模式下拉 */
+.css-lab-mode {
+    padding: 4px 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #fff;
+    color: #0f172a;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* 顶栏状态指示 */
+.css-lab-status {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.css-lab-loading {
+    color: #64748b;
+}
+
+.css-lab-error {
+    color: #dc2626;
+    font-weight: 600;
+    cursor: help;
+}
+
+/* 脏标记：代码已改未运行 */
+.css-lab-dirty {
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #fef3c7;
+    color: #b45309;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* 运行按钮 */
+.css-lab-run {
+    padding: 4px 16px;
+    border: none;
+    border-radius: 6px;
+    background: #0ea5e9;
+    color: #fff;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.15s, transform 0.05s;
+}
+
+.css-lab-run:hover:not(:disabled) {
+    background: #0284c7;
+}
+
+.css-lab-run:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.css-lab-run:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+}
+
+/* 有未运行改动时高亮提示用户点击 */
+.css-lab-run.dirty {
+    background: #16a34a;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.18);
+    animation: css-lab-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes css-lab-pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.18); }
+    50% { box-shadow: 0 0 0 5px rgba(22, 163, 74, 0.35); }
+}
+
+/* 错误面板（编译失败时显示在编辑器上方） */
+.css-lab-error-panel {
+    margin: 0;
+    padding: 8px 16px;
+    max-height: 120px;
+    overflow: auto;
+    background: #fef2f2;
+    color: #b91c1c;
+    border-bottom: 1px solid #fecaca;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+/* 响应式：窄屏改上下分栏 */
+@media (max-width: 768px) {
+    .css-lab-main {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 1fr;
+    }
+    .css-lab-editor {
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+    }
+}

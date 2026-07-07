@@ -114,33 +114,44 @@ function reconcile(parent, oldVNode, newVNode) {
 Fiber 将递归改为**链表遍历**，每个 Fiber 节点包含子节点、兄弟节点、父节点的引用：
 
 ```javascript
-// Fiber 节点结构（简化）
+// Fiber 节点结构（简化）—— 每个属性都对应一个你日常开发中的现象
 const fiber = {
-    // 静态结构
-    tag: FunctionComponent,     // 组件类型
-    type: App,                   // 组件函数/类
-    key: null,
+    // === 静态身份：决定"这是谁、能不能复用" ===
+    tag: FunctionComponent,     // 组件类型（函数/类/原生DOM/Portal）
+    type: App,                  // 组件函数 / 类 / 标签名（'div'）
+    key: null,                  // 列表复用标识（为什么 key 不能用 index，见 5.1）
 
-    // 树结构（链表）
-    return: parentFiber,         // 父节点
-    child: firstChildFiber,      // 第一个子节点
-    sibling: nextFiber,          // 下一个兄弟节点
-    index: 0,                    // 在兄弟中的索引
+    // === 树结构：链表，让遍历可中断恢复 ===
+    return: parentFiber,        // 父节点
+    child: firstChildFiber,     // 第一个子节点（不是数组，是链表头）
+    sibling: nextFiber,         // 第一个兄弟节点
+    index: 0,                   // 在兄弟中的位置
 
-    // 工作单元
-    pendingProps: {},            // 待处理 props
-    memoizedProps: {},           // 上次渲染的 props
-    memoizedState: {},           // 上次渲染的 state（Hooks 链表）
-    updateQueue: null,           // 更新队列
+    // === 工作单元：本次渲染的输入与输出 ===
+    pendingProps: {},           // 本次待处理的 props
+    memoizedProps: {},          // 上次渲染用的 props（React.memo 浅比较的对象，见 5.2）
+    memoizedState: null,        // 上次渲染的 state（函数组件是 Hooks 链表头，见 5.3）
+    updateQueue: null,          // 待处理的更新队列
 
-    // 副作用
-    flags: Placement,            // 需要执行的操作（插入/更新/删除）
-    deletions: [],               // 需要删除的子节点
+    // === 实例与引用：连接外部世界 ===
+    stateNode: null,            // 真实 DOM / 类组件实例（ref.current 指向它，见 5.4）
+    ref: null,                  // 通过 ref 传入的引用
 
-    // 双缓冲
-    alternate: currentFiber,     // 指向另一棵树的对应节点
+    // === 副作用：commit 阶段要执行什么 ===
+    flags: 0,                   // 本节点操作标记（Placement/Update/Deletion，见 5.5）
+    subtreeFlags: 0,            // 子树副作用汇总（React 17+ 优化，避免再遍历子树）
+    deletions: null,            // 需要删除的子节点数组
+
+    // === 调度优先级：并发模式的核心 ===
+    lanes: NoLanes,             // 本节点待处理优先级（startTransition 打低位，见 5.6）
+    childLanes: NoLanes,        // 子树的待处理优先级
+
+    // === 双缓冲：current 与 workInProgress 互相指向 ===
+    alternate: currentFiber,    // 另一棵树的对应节点（render 必须纯净的原因，见 5.7）
 };
 ```
+
+上面这些属性不是用来背的——**每一个都直接对应你在组件开发里遇到的现象**（列表 key 报警、memo 失效、hooks 报错、ref 拿不到组件……）。5 节会逐个拆解。
 
 ### 3. 链表遍历算法
 
@@ -201,6 +212,166 @@ function commitRoot() {
     // 旧的 current 变为下一次的 workInProgress（通过 alternate 复用）
 }
 ```
+
+### 5. Fiber 属性在组件开发中的体现
+
+光看属性清单记不住，关键是把它们和你天天写的组件代码对应起来。下面挑 7 个高频场景，说明每个 fiber 属性在开发里到底起什么作用。
+
+**5.1 key 与 type：决定组件能否复用**
+
+fiber 的 `key` + `type` 是 React 判断"是不是同一个节点"的唯一依据。Diff 时，同一位置若 key 和 type 都匹配 → 复用旧 fiber（保留 state）；不匹配 → 卸载旧的、挂载新的（state 重置）。
+
+```jsx
+// ❌ 用 index 做 key —— 列表输入串位的经典 bug
+items.map((item, i) => <Item key={i} value={item} />)
+
+// 删除 items[0] 后：React 发现 key=0,1,2 还在，判定"复用"
+// 但 key=0 原本对应 items[0]，现在对应原来的 items[1]
+// Item 内部不受控的本地状态（输入框光标、未提交草稿）跟着错位
+// 这就是"删掉第一行后，下面输入框内容串了"的根因
+
+// ✅ 用稳定的业务 id 做 key
+items.map(item => <Item key={item.id} value={item} />)
+```
+
+`type` 在同一位置变化会触发重建：
+
+```jsx
+{showEdit ? <EditForm /> : <Detail />}
+// 同一位置，type 在 EditForm / Detail 间切换 → React 认为是不同组件
+// 卸载 EditForm（执行其 useEffect 清理）+ 挂载 Detail（全新 state）
+// 想保留状态：用 CSS display 切换显隐，而不是切换组件
+```
+
+**实践启示：** 想保留状态就别让 key/type 变；反过来，想强制重置组件内部状态，故意改 key 是常用技巧——`<Comp key={id} />`，id 一变组件整个重建。
+
+**5.2 memoizedProps：React.memo 浅比较的对象**
+
+`memoizedProps` 存上次渲染用的 props，`pendingProps` 存本次的。`React.memo` 的本质就是浅比较这两个字段：
+
+```jsx
+const MemoChild = React.memo(Child);
+// 父组件重渲染时，React 对比 Child fiber 的 pendingProps vs memoizedProps
+// 浅比较相等 → 直接跳过 Child 的 render
+
+// 陷阱：内联对象/函数每次都是新引用，浅比较必不相等，memo 形同虚设
+<MemoChild
+    style={{ color: 'red' }}      // ❌ 每次 render 新对象
+    onClick={() => doSomething()} // ❌ 每次 render 新函数
+/>
+// → memoizedProps.style !== pendingProps.style，memo 永远失效
+
+// ✅ 用 useMemo / useCallback 稳定引用
+const style = useMemo(() => ({ color: 'red' }), []);
+const handleClick = useCallback(() => doSomething(), []);
+```
+
+**实践启示：** memo 失效几乎都是引用相等问题——传给 memo 组件的每个 prop 都得是稳定引用，否则 memo 白包。
+
+**5.3 memoizedState：Hooks 链表与"不能放条件里"**
+
+函数组件的 `memoizedState` 不是单一值，而是 **Hooks 链表的头指针**。每个 hook（useState/useEffect/...）是链表上的一个节点，按调用顺序串联：
+
+```jsx
+function Comp() {
+    const [a, setA] = useState(0); // 链表节点 1
+    const [b, setB] = useState(0); // 链表节点 2
+    useEffect(() => {}, []);        // 链表节点 3
+}
+// fiber.memoizedState → {a} → {b} → {effect} → null
+```
+
+React 完全靠"调用顺序"匹配 hook 与链表节点。一旦 hook 放进条件语句，顺序就会错乱：
+
+```jsx
+function Comp({ cond }) {
+    const [a] = useState(0);       // 节点1
+    if (cond) {
+        const [b] = useState(0);   // ❌ cond 变化时节点2 时有时无
+    }
+    const [c] = useState(0);       // cond=true 时是节点3，cond=false 时变成节点2
+    // React 把 c 的更新写到了 b 的链表节点上 → state 错乱、报错
+}
+```
+
+**实践启示：** "Hooks 必须在顶层调用"不是语法规定，是 `fiber.memoizedState` 链表结构的硬约束——顺序一乱，状态匹配就崩。
+
+**5.4 stateNode：ref 拿到 DOM 的本质**
+
+`stateNode` 指向 fiber 对应的"实例"：原生标签（HostComponent）是真实 DOM 节点，类组件是类实例，**函数组件没有 stateNode**。
+
+```jsx
+const inputRef = useRef(null);
+return <input ref={inputRef} />;
+// HostComponent（input）的 fiber.stateNode = 真实 <input> DOM
+// commit 阶段 React 把这个 DOM 赋给 ref.current → inputRef.current 就是那个 DOM
+```
+
+这解释了两个日常现象：
+- **函数组件不能直接 `ref={ref}`**（拿到的是 null），因为它的 fiber 没有 stateNode——必须用 `forwardRef` 把 ref 透传到内部的原生标签。
+- **`useRef` 的值能跨渲染保持且修改不触发重渲染**：它本质是挂在 fiber 上的一个 hook 节点，`.current` 是个普通可变属性，不参与渲染输出，所以改它 React 感知不到。
+
+**5.5 flags：副作用标记与执行时机**
+
+`flags` 标记本节点在 commit 阶段要执行的操作（插入/更新/删除）。`useEffect` 和 `useLayoutEffect` 的差异就来自不同的副作用标记：
+
+```jsx
+useEffect(() => { fetchData(); }, []);
+// fiber 打上 Passive flag
+// commit 阶段全部完成后【异步】执行（不阻塞浏览器绘制）→ useEffect 是异步的根源
+
+useLayoutEffect(() => { measureDOM(); }, []);
+// 打上 Layout（同步）flag
+// DOM 变更后【同步】执行，执行完才允许浏览器绘制 → 适合读布局、避免闪烁
+```
+
+列表删除时，被删节点的 `flags = Deletion`，commit 阶段触发卸载 → 该节点所有 effect 的 cleanup 函数依次执行。这就是"组件卸载时清理定时器、解绑事件、取消订阅"的底层机制——不写 cleanup 就会内存泄漏。
+
+**5.6 lanes：startTransition 的优先级**
+
+`lanes` 是并发模式的核心：每个更新都带一个优先级，高优先级可以打断低优先级的工作。`fiber.lanes` 是本节点待处理优先级，`childLanes` 是子树的：
+
+```jsx
+// 切 tab 要渲染大量列表（慢），同时用户还在搜索框输入
+function switchTab(tab) {
+    startTransition(() => {
+        setActiveTab(tab); // 这次更新被打成"低优先级 lane"
+    });
+}
+// 搜索框输入是高优先级更新
+// React 会暂停 tab 的渲染（workInProgress 保留进度），优先处理输入
+// 输入处理完，再接着渲染 tab
+// 这就是 startTransition 让"切 tab 不卡打字"的原理
+```
+
+调度器从根节点读 `childLanes`，决定"这棵树有没有紧急工作要做"。**实践启示：** 把"可以慢一下"的状态更新（搜索结果、大列表、tab 切换）包进 `startTransition`，把"必须立即响应"的（输入框文本、按钮点击）留在普通优先级。
+
+**5.7 alternate：为什么 render 阶段必须纯净**
+
+`alternate` 让 current（屏幕显示）和 workInProgress（正在构建）两棵树互相指向。workInProgress 树构建到一半可能被打断（见 5.6 的优先级抢占），甚至**整个丢弃重来**：
+
+```
+正在构建 workInProgress（render 函数执行了一半）
+    ↓  高优先级更新进来，调度器决定优先处理它
+当前 workInProgress 被丢弃，从 current 重新克隆构建
+    ↓
+你的 render 函数可能被调用多次，上一次的执行结果被废弃
+```
+
+所以 render 函数必须**纯净**——不能在里面发请求、改全局变量、操作 DOM、写数据库。这些副作用要么放事件处理函数，要么放 `useEffect`（commit 阶段才执行，不会重复或丢弃）。
+
+**fiber 属性 → 开发现象 → 实践启示对照表**
+
+| fiber 属性 | 对应的日常开发现象 | 实践启示 |
+|-----------|------------------|---------|
+| `key` | 列表用 index 导致输入串位 | 用稳定业务 id；想重置就改 key |
+| `type` | 切换组件导致 state 丢失 | 同位置别换 type；想重置就换 |
+| `memoizedProps` | `React.memo` 失效 | 传稳定引用（useMemo/useCallback） |
+| `memoizedState` | hooks 放条件语句报错 | hooks 必须在顶层按顺序调用 |
+| `stateNode` | ref.current 是 DOM；函数组件不能直接 ref | 函数组件用 forwardRef |
+| `flags` | useEffect 异步、卸载执行 cleanup | render 保持纯净，副作用放 effect |
+| `lanes` | startTransition 不卡输入 | 可慢的更新包进 transition |
+| `alternate` | render 执行多次结果不一致 | render 必须是纯函数 |
 
 ## 四、调和算法（Diff）
 

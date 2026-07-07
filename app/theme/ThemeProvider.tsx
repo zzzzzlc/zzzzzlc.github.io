@@ -119,8 +119,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
                 theme={{
                     algorithm: mode === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
                     token: {
-                        colorPrimary: mode === 'dark' ? '#1668dc' : '#1677ff',
+                        // dark 主色与 CSS 变量 --accent(#3c89e8) 对齐，
+                        // 消除 antd 组件主色与自定义样式层的暗色不一致
+                        colorPrimary: mode === 'dark' ? '#3c89e8' : '#1677ff',
                         borderRadius: 6,
+                        fontSize: 14,
                     },
                 }}
             >

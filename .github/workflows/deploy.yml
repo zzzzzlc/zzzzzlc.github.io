@@ -27,6 +27,18 @@ jobs:
           cache: 'pnpm'
 
       - run: pnpm install
+
+      # ─────────────────────────────────────────────────────────────
+      # 质量门禁（当前已关闭，保留备用）
+      # 启用方法：去掉下面两段前面的「#」，并确认 package.json 里有对应脚本
+      # ─────────────────────────────────────────────────────────────
+      # - name: Lint
+      #   run: pnpm run lint
+      #
+      # - name: Type check（tsc --noEmit，只做类型检查不产出）
+      #   run: pnpm exec tsc --noEmit
+      # ─────────────────────────────────────────────────────────────
+
       - run: pnpm run build
 
       - name: Copy index.html to 404.html for SPA routing

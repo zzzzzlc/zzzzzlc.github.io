@@ -77,6 +77,16 @@ const routes: RouteObject[] = [
                 id: "BPMN 流程设计",
                 element: React.createElement(React.lazy(() => import("../pages/bpmn-editor"))),
             },
+            {
+                path:"css-test",
+                id: "css实验室",
+                element: React.createElement(React.lazy(()=> import("../pages/test")))
+            },
+            {
+                path: "media-player",
+                id: "影视频播放器",
+                element: React.createElement(React.lazy(() => import("../pages/media-player"))),
+            }
         ],
     },
 ];

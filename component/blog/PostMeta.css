@@ -1,0 +1,20 @@
+.post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.post-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.post-meta-item .anticon {
+    font-size: 13px;
+    opacity: 0.7;
+}

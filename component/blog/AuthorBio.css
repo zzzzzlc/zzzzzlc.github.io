@@ -1,0 +1,63 @@
+.author-bio {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    border-radius: 10px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-secondary);
+}
+
+.author-bio-full {
+    flex-direction: column;
+    text-align: center;
+    gap: 14px;
+    padding: 28px 20px;
+}
+
+.author-bio-compact {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.author-bio-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.author-bio-full .author-bio-content {
+    align-items: center;
+}
+
+.author-bio-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-base);
+}
+
+.author-bio-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* 头像 */
+.blog-avatar {
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--bg-hover);
+}
+
+.blog-avatar-monogram {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent, #1677ff);
+    font-weight: 600;
+    background: linear-gradient(135deg, rgba(22, 119, 255, 0.12), rgba(22, 119, 255, 0.04));
+    border: 1px solid var(--border-base);
+}

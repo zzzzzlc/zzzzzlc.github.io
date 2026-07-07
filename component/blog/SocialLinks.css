@@ -1,0 +1,29 @@
+.social-links {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.social-links-small {
+    gap: 10px;
+}
+
+.social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-size: 18px;
+    line-height: 1;
+    transition: color 0.18s ease, transform 0.18s ease;
+    text-decoration: none;
+}
+
+.social-links-small .social-link {
+    font-size: 15px;
+}
+
+.social-link:hover {
+    color: var(--accent, #1677ff);
+    transform: translateY(-1px);
+}

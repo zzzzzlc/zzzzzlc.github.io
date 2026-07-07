@@ -1,0 +1,77 @@
+/* ============ Categories 分类页（与首页统一的卡片语言） ============ */
+
+.page-header {
+    margin-bottom: var(--space-lg);
+}
+
+.page-title {
+    margin: 0 0 6px;
+    font-size: var(--fs-xl);
+    font-weight: 700;
+    color: var(--text-base);
+    line-height: var(--lh-tight);
+}
+
+.page-subtitle {
+    margin: 0;
+    font-size: var(--fs-sm);
+    color: var(--text-secondary);
+}
+
+/* ---------- 分类过滤 pill 行 ---------- */
+.cat-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    padding: var(--space-sm) 0;
+    margin-bottom: var(--space-lg);
+    border-top: 1px solid var(--border-secondary);
+    border-bottom: 1px solid var(--border-secondary);
+}
+
+/* ---------- 标签云 ---------- */
+.cat-tags-section {
+    margin-bottom: var(--space-xl);
+}
+
+.cat-tags-title {
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: var(--space-sm);
+}
+
+.cat-tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+/* ---------- 区块标题 + 结果计数 ---------- */
+.cat-result-count {
+    margin-left: var(--space-sm);
+    font-size: var(--fs-xs);
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
+/* ---------- 文章网格：3 列 ---------- */
+.cat-post-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+}
+
+@media (max-width: 1024px) {
+    .cat-post-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .cat-post-grid {
+        grid-template-columns: 1fr;
+    }
+}
