@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(echo \"tsc exit=$?\")",
+      "Bash(echo \"exit: $?\")"
+    ]
+  }
+}

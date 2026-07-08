@@ -1,6 +1,6 @@
 ---
 title: AI Agent 开发设计与实战：从架构模式到工程落地
-date: '2026-04-28'
+date: '2026-06-05'
 tags:
   - AI
   - AI Agent

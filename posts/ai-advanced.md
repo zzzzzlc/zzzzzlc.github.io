@@ -1,6 +1,6 @@
 ---
 title: AI 模型应用进阶：RAG、Agent 与工程化实践
-date: '2026-04-26'
+date: '2026-05-25'
 tags:
   - AI
   - AI Agent

@@ -1,6 +1,6 @@
 ---
 title: 数据可视化方案对比：ECharts vs D3 vs AntV 从选型到实战
-date: '2026-04-29'
+date: '2025-10-18'
 tags:
   - 前端
 category: 前端进阶

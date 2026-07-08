@@ -1,6 +1,6 @@
 ---
 title: Vibe Coding 增强：如何提高 AI 生成代码质量与减少幻觉
-date: '2026-04-29'
+date: '2026-06-16'
 tags:
   - AI 工具
   - 设计原则

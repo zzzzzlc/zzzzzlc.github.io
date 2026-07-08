@@ -1,6 +1,6 @@
 ---
 title: Webpack VS Vite
-date: '2026-04-22'
+date: '2025-09-09'
 tags:
   - 工程化
 category: 技术

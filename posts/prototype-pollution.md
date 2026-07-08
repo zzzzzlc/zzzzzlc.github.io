@@ -1,6 +1,6 @@
 ---
 title: JavaScript 原型链投毒原理与防御方案
-date: '2026-04-24'
+date: '2025-10-13'
 tags:
   - JavaScript
   - 前端

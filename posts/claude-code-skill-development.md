@@ -1,6 +1,6 @@
 ---
 title: Claude Code Skill 开发：从零构建自定义斜杠命令
-date: '2026-04-27'
+date: '2026-06-22'
 tags:
   - AI 工具
   - 工程化

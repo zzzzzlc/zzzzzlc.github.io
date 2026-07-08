@@ -1,6 +1,6 @@
 ---
 title: "LangChain vs LangGraph：从链式调用到图编排的 LLM 应用架构选型"
-date: "2026-06-04"
+date: '2026-05-30'
 tags:
   - AI
   - LangChain

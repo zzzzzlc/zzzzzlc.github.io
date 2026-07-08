@@ -1,6 +1,6 @@
 ---
 title: 普通工作流 vs AI 工作流：选型与实战
-date: '2026-04-26'
+date: '2026-06-11'
 tags:
   - AI Agent
   - AI

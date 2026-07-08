@@ -1,6 +1,6 @@
 ---
 title: 浏览器渲染原理与 JS 运行环境对比：从 HTML 解析到 Node.js 差异
-date: '2026-05-04'
+date: '2025-08-01'
 tags:
   - 性能优化
   - Node.js

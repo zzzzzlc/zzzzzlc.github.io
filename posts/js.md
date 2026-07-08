@@ -1,6 +1,6 @@
 ---
 title: JavaScript & ES6+
-date: '2026-04-22'
+date: '2025-07-15'
 tags:
   - JavaScript
   - 前端

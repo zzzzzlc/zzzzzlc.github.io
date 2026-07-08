@@ -80,9 +80,9 @@ const projects: Project[] = [
     },
     {
         name: "影视频播放器",
-        description: "在线影视频播放器，支持 URL 直链加载、本地文件上传、自定义控件（进度拖拽、倍速、循环、音量、快进快退）、画中画、全屏及键盘快捷键，视频音频双模式。",
+        description: "在线影视频播放器，支持渐进式下载（mp4/webm/mp3）、HLS（m3u8，hls.js）、DASH（mpd，dash.js）流媒体与本地文件上传，自定义控件含进度拖拽、倍速、循环、音量、快进快退、画中画、全屏及键盘快捷键，视频音频双模式。",
         internalPath: "/media-player",
-        tags: ["React", "Video", "Audio", "Media"],
+        tags: ["React", "HLS", "DASH", "Media"],
         language: "TypeScript",
     },
     {

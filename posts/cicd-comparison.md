@@ -1,6 +1,6 @@
 ---
 title: CI/CD 方案实践对比：从选型到落地
-date: '2026-04-26'
+date: '2026-04-21'
 tags:
   - DevOps
 category: 工程化
