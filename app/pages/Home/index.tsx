@@ -1,27 +1,32 @@
+import React, { Suspense, useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import blogIndex from 'virtual:blog-index';
 import { author } from '../../blog/author';
 import BlogAvatar from '../../../component/blog/BlogAvatar';
-import ParticleField from '../../../component/ParticleField';
 import './home.css';
 
-interface PostMeta {
-    category?: string;
-}
+const ParticleField = React.lazy(() => import('../../../component/ParticleField'));
 
 /**
- * 首页：单入口 landing 页（严格一屏、无滚动）。
- * 不展示文章列表，仅一个「浏览全部文章」入口指向 /categories。
+ * 首屏 landing 页：优先让标题先绘制，装饰性的粒子背景延后加载。
  */
 export default function Home() {
-    const postCount = blogIndex.length;
-    const categoryCount = new Set(
-        (blogIndex as PostMeta[]).map(p => p.category || '未分类'),
-    ).size;
+    const [showParticleField, setShowParticleField] = useState(false);
+
+    useEffect(() => {
+        const timer = window.setTimeout(() => {
+            setShowParticleField(true);
+        }, 0);
+
+        return () => window.clearTimeout(timer);
+    }, []);
 
     return (
         <div className="home-screen">
-            <ParticleField />
+            {showParticleField && (
+                <Suspense fallback={null}>
+                    <ParticleField />
+                </Suspense>
+            )}
             <div className="home-landing">
                 <BlogAvatar size={112} />
 
@@ -29,14 +34,8 @@ export default function Home() {
                 <p className="home-landing-slogan">{author.tagline}</p>
 
                 <Link to="/categories" className="home-landing-cta">
-                    浏览全部 {postCount} 篇文章 →
+                    浏览全部文章 →
                 </Link>
-
-                <div className="home-landing-stats">
-                    <span><strong>{postCount}</strong> 篇文章</span>
-                    <span className="home-landing-dot">·</span>
-                    <span><strong>{categoryCount}</strong> 个分类</span>
-                </div>
             </div>
         </div>
     );

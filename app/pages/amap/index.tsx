@@ -1,3 +1,4 @@
+import 'maplibre-gl/dist/maplibre-gl.css';
 import { Typography } from 'antd';
 import { useAmap } from './hooks/useAmap';
 import { ToolbarPanel } from './components/ToolbarPanel';
