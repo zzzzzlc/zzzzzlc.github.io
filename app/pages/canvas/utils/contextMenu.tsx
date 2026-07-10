@@ -1,5 +1,5 @@
 import {
-    ClearOutlined, DownloadOutlined, RedoOutlined, ToolOutlined, UndoOutlined,
+    ClearOutlined, CloseCircleOutlined, DeleteOutlined, DownloadOutlined, RedoOutlined, RetweetOutlined, ToolOutlined, UndoOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import type { CanvasController, Tool } from '../types';
@@ -14,10 +14,10 @@ export interface ContextMenuClickInfo {
 
 /**
  * 构建画布右键菜单项：
- * 撤销 / 重做（按历史栈可用态置灰）→ 下载 / 清空 → 切换工具子菜单（当前工具标记 ✓）
+ * 删除此节点（右键命中）/ 反选 / 取消选中全部（选中态）→ 撤销 / 重做 → 下载 / 清空 → 切换工具子菜单
  */
 export const buildContextMenuItems = (controller: CanvasController): MenuProps['items'] => {
-    const { canUndo, canRedo, tool } = controller;
+    const { canUndo, canRedo, tool, selectedIds, contextHitId } = controller;
 
     const toolItems: MenuItem[] = TOOL_GROUPS.flatMap((group, groupIndex) => {
         const items: MenuItem[] = group.items.map((item) => ({
@@ -30,7 +30,19 @@ export const buildContextMenuItems = (controller: CanvasController): MenuProps['
         return [...items, ...separator];
     });
 
+    // 顶部操作区：删除右键命中的节点 / 反选 / 取消选中全部（仅改选中态，不删节点）
+    const topItems: MenuItem[] = [];
+    if (contextHitId != null) {
+        topItems.push({ key: 'delete-node', icon: <DeleteOutlined />, label: '删除此节点', danger: true });
+    }
+    if (selectedIds.length > 0) {
+        topItems.push({ key: 'invert-selection', icon: <RetweetOutlined />, label: '反选' });
+        topItems.push({ key: 'clear-selection', icon: <CloseCircleOutlined />, label: '取消选中全部' });
+    }
+    const topSection: MenuItem[] = topItems.length > 0 ? [...topItems, { type: 'divider' }] : [];
+
     return [
+        ...topSection,
         { key: 'undo', icon: <UndoOutlined />, label: '撤销', disabled: !canUndo },
         { key: 'redo', icon: <RedoOutlined />, label: '重做', disabled: !canRedo },
         { type: 'divider' },
@@ -48,6 +60,15 @@ export const handleContextMenuClick = (
 ): void => {
     const { key } = info;
     switch (key) {
+        case 'delete-node':
+            controller.handleDeleteNode();
+            return;
+        case 'clear-selection':
+            controller.handleClearSelection();
+            return;
+        case 'invert-selection':
+            controller.handleInvertSelection();
+            return;
         case 'undo':
             controller.handleUndo();
             return;

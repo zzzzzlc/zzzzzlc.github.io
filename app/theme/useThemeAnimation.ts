@@ -1,6 +1,12 @@
 import { useEffect } from 'react';
 
 /**
+ * 主题切换的「锚点坐标」：扩散动画的圆心。仅取 clientX/clientY，
+ * 既兼容真实 React.MouseEvent，也允许无事件时手动传入坐标（避免 as any）。
+ */
+export type ThemeToggleAnchor = { clientX: number; clientY: number };
+
+/**
  * 极简 CSS 注入工具（对齐 antd @rc-component/util 的 updateCSS/removeCSS 行为）。
  * 用 id 复用同一个 <style>，避免重复注入。
  */
@@ -97,7 +103,7 @@ function startAnimationTheme(clipPath: string[], isDark: boolean) {
  *                 若放在外部异步触发，React 提交晚于 VT 截图 → 快照差异极小 → 扩散几乎看不见。
  */
 export async function toggleAnimationTheme(
-    event: React.MouseEvent,
+    event: ThemeToggleAnchor,
     isDark: boolean,
     onApply?: () => void | Promise<void>,
 ) {

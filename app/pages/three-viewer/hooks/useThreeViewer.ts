@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { message } from 'antd';
+import { App } from 'antd';
 import type { UploadProps } from 'antd';
 import type { ThreeViewerController } from '../types';
 import { createThreeEngine, type ThreeEngine } from '../services/threeEngine';
@@ -9,6 +9,8 @@ import { createThreeEngine, type ThreeEngine } from '../services/threeEngine';
  * 持有引擎引用、状态与交互逻辑，对外暴露统一控制器
  */
 export const useThreeViewer = (): ThreeViewerController => {
+    // 走 antd App 的 context 版本 message，以继承动态主题
+    const { message } = App.useApp();
     const containerRef = useRef<HTMLDivElement>(null);
     const engineRef = useRef<ThreeEngine | null>(null);
 

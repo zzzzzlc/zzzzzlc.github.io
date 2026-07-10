@@ -1,5 +1,6 @@
 import { Card, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
+import { useEffect } from 'react';
 import type { CanvasController } from '../types';
 import { buildContextMenuItems, handleContextMenuClick } from '../utils/contextMenu';
 
@@ -7,10 +8,10 @@ export interface CanvasStageProps {
     controller: CanvasController;
 }
 
-/** 画布舞台：canvas 元素 + 自定义右键菜单 + 光标坐标显示 */
+/** 画布舞台：canvas + 右键菜单 + 键盘删除 + 光标坐标（框选/选择框均在 canvas 内绘制） */
 export function CanvasStage({ controller }: CanvasStageProps) {
     const {
-        canvasRef, tool, cursor,
+        canvasRef, tool, cursor, handleDeleteSelected, onContextMenu,
         onMouseDown, onMouseMove, onMouseUp, onMouseLeave,
     } = controller;
 
@@ -18,6 +19,19 @@ export function CanvasStage({ controller }: CanvasStageProps) {
         items: buildContextMenuItems(controller),
         onClick: (info) => handleContextMenuClick(info, controller),
     };
+
+    // 键盘删除选中节点（焦点在输入框时跳过，避免误删）
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key !== 'Delete' && e.key !== 'Backspace') return;
+            const tag = (e.target as HTMLElement | null)?.tagName;
+            if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+            e.preventDefault();
+            handleDeleteSelected();
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [handleDeleteSelected]);
 
     return (
         <Card styles={{ body: { padding: 0, overflow: 'hidden', position: 'relative' } }}>
@@ -29,13 +43,14 @@ export function CanvasStage({ controller }: CanvasStageProps) {
                         style={{
                             width: '100%',
                             height: '70vh',
-                            cursor: tool === 'eraser' ? 'cell' : 'crosshair',
+                            cursor: tool === 'eraser' ? 'cell' : tool === 'select' ? 'default' : 'crosshair',
                             display: 'block',
                         }}
                         onMouseDown={onMouseDown}
                         onMouseMove={onMouseMove}
                         onMouseUp={onMouseUp}
                         onMouseLeave={onMouseLeave}
+                        onContextMenu={onContextMenu}
                     />
                 </div>
             </Dropdown>

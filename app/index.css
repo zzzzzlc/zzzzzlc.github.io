@@ -1,11 +1,10 @@
+﻿/* WebGIS 鍦板浘鏍峰紡 */
+@import 'maplibre-gl/dist/maplibre-gl.css';
+
 * {
     margin: 0;
     padding: 0;
 }
-
-/* WebGIS 地图样式 */
-@import 'maplibre-gl/dist/maplibre-gl.css';
-
 html {
     scroll-behavior: smooth;
 }

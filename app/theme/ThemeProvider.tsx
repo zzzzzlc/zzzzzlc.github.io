@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { ConfigProvider, theme as antdTheme } from 'antd';
+import { App as AntdApp, ConfigProvider, theme as antdTheme } from 'antd';
 import {
     supportsViewTransition,
     toggleAnimationTheme,
@@ -127,7 +127,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
                     },
                 }}
             >
-                {children}
+                {/* antd App：提供 message/notification/modal 的 context 版本（App.useApp()），取代静态调用以继承主题 */}
+                <AntdApp>{children}</AntdApp>
             </ConfigProvider>
         </ThemeContext.Provider>
     );

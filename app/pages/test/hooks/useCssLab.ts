@@ -27,7 +27,8 @@ export const useCssLab = (): CssTestController => {
         html,
         mode,
     });
-    const [runToken, setRunToken] = useState(0); // 自增触发器
+    // 自增触发器：初值 1 → 编译 effect 在挂载时自然跑一次，无需额外的 mount effect
+    const [runToken, setRunToken] = useState(1);
     const [preview, setPreview] = useState({ css: cssBank[mode], html });
 
     const currentCss = cssBank[mode];
@@ -54,14 +55,8 @@ export const useCssLab = (): CssTestController => {
     const handleRunRef = useRef(handleRun);
     useEffect(() => { handleRunRef.current = handleRun; }, [handleRun]);
 
-    // 首次挂载自动跑一次，让用户看到已有代码的效果
+    // 编译：由 runToken 触发（初值 1 → 挂载即编译一次首屏效果）
     useEffect(() => {
-        handleRun();
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-    // 编译：仅由 runToken 触发
-    useEffect(() => {
-        if (runToken === 0) return; // 初始化时不自动运行
         let cancelled = false;
         const run = async () => {
             setCompilerLoading(true);

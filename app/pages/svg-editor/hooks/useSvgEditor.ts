@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
-import { message } from 'antd';
+import { App } from 'antd';
 import type { SvgEditorController } from '../types';
 import { DEFAULT_SVG } from '../utils/constants';
 import { parseSvgError } from '../utils/svg';
 
 /** SVG 编辑器核心逻辑：代码状态 + 错误解析 + 复制/下载/重置 */
 export const useSvgEditor = (): SvgEditorController => {
+    // 走 antd App 的 context 版本 message，以继承动态主题
+    const { message } = App.useApp();
     const [code, setCode] = useState(DEFAULT_SVG);
 
     const svgError = useMemo(() => parseSvgError(code), [code]);

@@ -15,7 +15,7 @@ export function Toolbar({ controller }: ToolbarProps) {
             <Space wrap size="middle" align="center">
                 {TOOL_GROUPS.map((group, i) => (
                     <Space key={group.label} size="small" align="center">
-                        {i > 0 && <Divider type="vertical" style={{ height: 28, margin: '0 4px' }} />}
+                        {i > 0 && <Divider orientation="vertical" style={{ height: 28, margin: '0 4px' }} />}
                         <Typography.Text type="secondary" style={{ fontSize: 12 }}>{group.label}</Typography.Text>
                         <Segmented
                             value={tool}

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { message } from 'antd';
+import { App } from 'antd';
 import type {
     WatermarkConfig, WatermarkController, WatermarkMode, WatermarkPosition, WatermarkProps,
 } from '../types';
@@ -11,6 +11,8 @@ import { renderWatermarkedCanvas } from '../utils/draw';
  * 模式切换、配置状态、图片上传、预览渲染（canvas）、下载
  */
 export const useWatermark = (): WatermarkController => {
+    // 走 antd App 的 context 版本 message，以继承动态主题
+    const { message } = App.useApp();
     const [mode, setMode] = useState<WatermarkMode>('page');
     const [config, setConfig] = useState<WatermarkConfig>({ ...DEFAULT_CONFIG });
 

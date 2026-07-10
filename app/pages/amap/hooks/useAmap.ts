@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { message } from 'antd';
+import { App } from 'antd';
 import type { AmapController, EndpointKey, MapStyle, PoiItem, RouteProfile, RouteResult } from '../types';
 import { createMap, type MapEngine } from '../services/mapEngine';
 import { planRoute as planRouteService, searchPois } from '../services/geoService';
@@ -11,6 +11,8 @@ import { LOCATE_ZOOM, SELECT_ZOOM } from '../utils/constants';
  * 持有全部状态、地图引擎引用与选点 / 搜索 / 路线规划逻辑，对外暴露统一控制器
  */
 export const useAmap = (): AmapController => {
+    // 走 antd App 的 context 版本 message，以继承动态主题
+    const { message } = App.useApp();
     const containerRef = useRef<HTMLDivElement>(null);
     const mapEngineRef = useRef<MapEngine | null>(null);
     // pickPointRef 跟踪最新 handlePickPoint：地图 click 回调在 init effect 内仅注册一次，
@@ -91,7 +93,7 @@ export const useAmap = (): AmapController => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [message]);
 
     const selectPoi = useCallback((poi: PoiItem) => {
         setSearchResults([]);
@@ -124,7 +126,7 @@ export const useAmap = (): AmapController => {
         } finally {
             setLoading(false);
         }
-    }, [startPoint, endPoint, profile]);
+    }, [startPoint, endPoint, profile, message]);
 
     const swapEndpoints = useCallback(() => {
         if (!startPoint || !endPoint) return;
@@ -169,7 +171,7 @@ export const useAmap = (): AmapController => {
             () => message.error('定位失败，请检查权限'),
             { enableHighAccuracy: true, timeout: 10000 },
         );
-    }, []);
+    }, [message]);
 
     return {
         containerRef,

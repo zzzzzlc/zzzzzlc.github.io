@@ -1,7 +1,7 @@
 import { Link } from 'react-router';
 import blogIndex from 'virtual:blog-index';
 import { author } from '../../blog/author';
-import { BlogAvatar } from '../../../component/blog/AuthorBio';
+import BlogAvatar from '../../../component/blog/BlogAvatar';
 import ParticleField from '../../../component/ParticleField';
 import './home.css';
 

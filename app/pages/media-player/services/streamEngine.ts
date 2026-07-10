@@ -11,7 +11,20 @@ export interface StreamEngine {
     destroy: () => void;
 }
 
+
 type ErrorHandler = (message: string) => void;
+
+async function createPlayer(type: "hls" | "dash") {
+    if (type === "hls") {
+        const { default: Hls } = await import("hls.js");
+        return new Hls();
+    }
+
+    if (type === "dash") {
+        const dashjs = await import("dashjs");
+        return dashjs.MediaPlayer().create();
+    }
+}
 
 /**
  * 统一挂载媒体源到 video 元素：

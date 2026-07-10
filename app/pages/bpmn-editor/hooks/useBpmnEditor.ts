@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { message, Modal } from 'antd';
+import { App } from 'antd';
 import type { UploadProps } from 'antd';
 import type { BpmnController, ExportFormat, SelectedElement, TemplateKey, ZoomAction } from '../types';
 import {
@@ -16,6 +16,8 @@ import { downloadBlob } from '../utils/download';
  * 持有引擎引用、状态与事件处理，对外暴露统一控制器
  */
 export const useBpmnEditor = (): BpmnController => {
+    // 走 antd App 的 context 版本 message/modal，以继承动态主题
+    const { message, modal } = App.useApp();
     const containerRef = useRef<HTMLDivElement>(null);
     const engineRef = useRef<BpmnEngine | null>(null);
     const [currentXml, setCurrentXml] = useState('');
@@ -63,7 +65,7 @@ export const useBpmnEditor = (): BpmnController => {
         return () => {
             engine.destroy();
         };
-    }, []);
+    }, [message]);
 
     // 导入 BPMN XML
     const handleImportXml = useCallback((xml: string) => {
@@ -75,7 +77,7 @@ export const useBpmnEditor = (): BpmnController => {
         }).catch((err: Error) => {
             message.error('导入失败: ' + err.message);
         });
-    }, []);
+    }, [message]);
 
     // 上传文件
     const handleUpload: UploadProps['beforeUpload'] = (file) => {
@@ -111,7 +113,7 @@ export const useBpmnEditor = (): BpmnController => {
         } catch {
             message.error('导出失败');
         }
-    }, []);
+    }, [message]);
 
     // 查看 XML
     const handleViewXml = useCallback(async () => {
@@ -149,12 +151,12 @@ export const useBpmnEditor = (): BpmnController => {
 
     // 清空画布
     const handleNewDiagram = useCallback(() => {
-        Modal.confirm({
+        modal.confirm({
             title: '新建流程图',
             content: '当前内容将被清空，确认新建？',
             onOk: () => handleImportXml(EMPTY_DIAGRAM),
         });
-    }, [handleImportXml]);
+    }, [handleImportXml, modal]);
 
     // 加载模板
     const handleLoadTemplate = useCallback((key: TemplateKey) => {
@@ -163,7 +165,7 @@ export const useBpmnEditor = (): BpmnController => {
             handleImportXml(xml);
             message.success('模板已加载');
         }
-    }, [handleImportXml]);
+    }, [handleImportXml, message]);
 
     // XML 弹窗操作
     const closeXmlModal = useCallback(() => setXmlModalOpen(false), []);
@@ -171,7 +173,7 @@ export const useBpmnEditor = (): BpmnController => {
     const copyXml = useCallback(() => {
         navigator.clipboard.writeText(currentXml);
         message.success('已复制到剪贴板');
-    }, [currentXml]);
+    }, [currentXml, message]);
 
     const downloadCurrentXml = useCallback(() => {
         const blob = new Blob([currentXml], { type: 'application/xml' });

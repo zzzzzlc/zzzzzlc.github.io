@@ -2,7 +2,14 @@
   "permissions": {
     "allow": [
       "Bash(echo \"tsc exit=$?\")",
-      "Bash(echo \"exit: $?\")"
+      "Bash(echo \"exit: $?\")",
+      "Bash(npm run *)",
+      "Bash(echo \"===EXIT:$?===\")",
+      "Bash(pnpm -v)",
+      "Bash(where chrome *)",
+      "Bash(where chrome.exe)",
+      "Read(//c/Program Files/Google/Chrome/Application/**)",
+      "Read(//c/Program Files \\\\\\(x86\\\\\\)/Google/Chrome/Application/**)"
     ]
   }
 }

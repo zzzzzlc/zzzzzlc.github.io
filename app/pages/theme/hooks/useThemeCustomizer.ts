@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { message } from 'antd';
+import { App } from 'antd';
 import { useThemeMode } from '../../../theme/ThemeProvider';
 import type { ThemeConfig, ThemeController, ThemeMode } from '../types';
 import { DEFAULT_DARK, DEFAULT_LIGHT, STORAGE_KEY } from '../utils/constants';
@@ -10,6 +10,8 @@ import { generateCss } from '../utils/generateCss';
  * 主题配置状态、模式同步（跟随全局 Provider）、持久化、应用、导出、重置
  */
 export const useThemeCustomizer = (): ThemeController => {
+    // 走 antd App 的 context 版本 message，以继承动态主题
+    const { message } = App.useApp();
     const { mode: globalMode, setMode: setGlobalMode } = useThemeMode();
     const [theme, setTheme] = useState<ThemeConfig>(() => {
         const saved = localStorage.getItem(STORAGE_KEY);

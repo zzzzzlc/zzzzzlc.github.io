@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type SyntheticEvent } from 'react';
-import { message } from 'antd';
+import { App } from 'antd';
 import type { UploadProps } from 'antd';
 import type { MediaPlayerController, MediaType, SampleKind } from '../types';
 import { attachStream, type StreamEngine } from '../services/streamEngine';
@@ -10,6 +10,8 @@ import { detectStreamType, extractFileName, SAMPLE_SOURCES } from '../utils/stre
  * 持有全部播放状态、DOM 引用与流引擎，对外暴露统一控制器
  */
 export const useMediaPlayer = (): MediaPlayerController => {
+    // 走 antd App 的 context 版本 message，以继承动态主题（替代静态 message.warning/error/success）
+    const { message } = App.useApp();
     const [mode, setMode] = useState<MediaType>('video');
     const [src, setSrc] = useState<string | null>(null);
     const [streamType, setStreamType] = useState<MediaPlayerController['streamType']>('native');
@@ -67,7 +69,7 @@ export const useMediaPlayer = (): MediaPlayerController => {
         const type = detectStreamType(trimmed);
         if (type !== 'native') setMode('video'); // m3u8/mpd 一定是视频流
         loadSource(trimmed, extractFileName(trimmed));
-    }, [loadSource]);
+    }, [loadSource, message]);
 
     const handleUpload: UploadProps['beforeUpload'] = (file) => {
         if (!file.type.startsWith('video/') && !file.type.startsWith('audio/')) {
@@ -116,7 +118,7 @@ export const useMediaPlayer = (): MediaPlayerController => {
         return () => {
             teardownStream();
         };
-    }, [src, streamType, teardownStream]);
+    }, [src, streamType, teardownStream, message]);
 
     // 音量 / 静音同步到 video 元素（修复：仅改 state 未同步，音量滑块原本不生效）
     useEffect(() => {
@@ -184,7 +186,7 @@ export const useMediaPlayer = (): MediaPlayerController => {
         } else {
             await document.exitFullscreen?.().catch(() => {});
         }
-    }, []);
+    }, [message]);
 
     const togglePip = useCallback(async () => {
         const v = videoRef.current;
@@ -200,7 +202,7 @@ export const useMediaPlayer = (): MediaPlayerController => {
         } catch {
             message.warning('画中画不可用，可能受媒体跨域限制');
         }
-    }, []);
+    }, [message]);
 
     // 控件自动隐藏（播放时鼠标静止 2.5s 后淡出）
     const revealControls = useCallback(() => {
@@ -242,7 +244,7 @@ export const useMediaPlayer = (): MediaPlayerController => {
         if (src && streamType === 'native') {
             message.error('媒体加载失败，请检查地址或跨域限制');
         }
-    }, [src, streamType]);
+    }, [src, streamType, message]);
 
     // 键盘快捷键
     useEffect(() => {
