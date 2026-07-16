@@ -9,7 +9,16 @@
       "Bash(where chrome *)",
       "Bash(where chrome.exe)",
       "Read(//c/Program Files/Google/Chrome/Application/**)",
-      "Read(//c/Program Files \\\\\\(x86\\\\\\)/Google/Chrome/Application/**)"
+      "Read(//c/Program Files \\\\\\(x86\\\\\\)/Google/Chrome/Application/**)",
+      "Bash(curl -s -o /dev/null -w \"preview HTTP %{http_code}\\\\n\" http://localhost:4173/)",
+      "Bash(npx --yes lighthouse --version)",
+      "Bash(CHROME_PATH='/c/Program Files/Google/Chrome/Application/chrome.exe' npx lighthouse http://localhost:4173/ --output html --output json --output-path ./lighthouse-home --only-categories=performance --preset=desktop --throttling-method=devtools '--chrome-flags=--headless=new --no-sandbox --disable-gpu --window-size=1440,900')",
+      "Bash(curl -s -o /dev/null -w \"preview HTTP %{http_code}\\\\n\" http://localhost:4174/)",
+      "Bash(CHROME_PATH='/c/Program Files/Google/Chrome/Application/chrome.exe' npx lighthouse http://localhost:4174/ --output html --output json --output-path ./lighthouse-after --only-categories=performance --preset=desktop --throttling-method=devtools '--chrome-flags=--headless=new --no-sandbox --disable-gpu --window-size=1440,900')",
+      "Bash(CHROME_PATH='/c/Program Files/Google/Chrome/Application/chrome.exe' npx lighthouse http://localhost:4174/ --output json --output-path ./lighthouse-after --only-categories=performance --preset=desktop --throttling-method=devtools '--chrome-flags=--headless=new --no-sandbox --disable-gpu --window-size=1440,900')",
+      "Bash(echo \"=== tsc exit: $? ===\")",
+      "Bash(rm -f _analyze.mjs _inspect.mjs _compare.mjs _lighthouse-parse.mjs stats.html lighthouse-home.report.html lighthouse-home.report.json lighthouse-after lighthouse-after.report.html)",
+      "Bash(ls _*.mjs stats.html lighthouse-*)"
     ]
   }
 }

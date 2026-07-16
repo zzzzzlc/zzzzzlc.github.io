@@ -114,8 +114,18 @@ export const useMediaPlayer = (): MediaPlayerController => {
     useEffect(() => {
         const v = videoRef.current;
         if (!v || !src) return;
-        engineRef.current = attachStream(v, src, streamType, (msg) => message.error(msg));
+        // attachStream 异步动态加载流媒体库(hls.js/dashjs)，需处理 src 变化时的竞态：
+        // cleanup 置 cancelled，使上一次未完成的挂载在 resolve 后被丢弃并销毁
+        let cancelled = false;
+        void attachStream(v, src, streamType, (msg) => message.error(msg)).then(engine => {
+            if (cancelled) {
+                engine?.destroy();
+                return;
+            }
+            engineRef.current = engine;
+        });
         return () => {
+            cancelled = true;
             teardownStream();
         };
     }, [src, streamType, teardownStream, message]);

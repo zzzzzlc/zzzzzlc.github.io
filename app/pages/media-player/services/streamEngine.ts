@@ -1,5 +1,3 @@
-import Hls from 'hls.js';
-import { MediaPlayer } from 'dashjs';
 import type { StreamType } from '../types';
 
 /**
@@ -11,42 +9,31 @@ export interface StreamEngine {
     destroy: () => void;
 }
 
-
 type ErrorHandler = (message: string) => void;
-
-async function createPlayer(type: "hls" | "dash") {
-    if (type === "hls") {
-        const { default: Hls } = await import("hls.js");
-        return new Hls();
-    }
-
-    if (type === "dash") {
-        const dashjs = await import("dashjs");
-        return dashjs.MediaPlayer().create();
-    }
-}
 
 /**
  * 统一挂载媒体源到 video 元素：
  * - native：直接设 src
- * - hls：Safari 走原生，其余走 hls.js
- * - dash：走 dash.js
+ * - hls：Safari 走原生，其余走 hls.js（仅 HLS 场景才动态加载）
+ * - dash：走 dash.js（仅 DASH 场景才动态加载）
  *
- * 引擎创建与销毁在此收口，组件/hook 不直接 new Hls / dashjs
+ * hls.js / dashjs 按需动态 import，避免把两个流媒体库（合计 ~2MB）静态打进页面 chunk。
+ * 引擎创建与销毁在此收口，组件/hook 不直接 new Hls / dashjs。
  */
-export const attachStream = (
+export const attachStream = async (
     video: HTMLVideoElement,
     src: string,
     streamType: StreamType,
     onError: ErrorHandler,
-): StreamEngine | null => {
+): Promise<StreamEngine | null> => {
     if (streamType === 'hls') {
+        // Safari 原生 HLS，无需 hls.js
         if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            // Safari 原生 HLS
             video.src = src;
             video.play().catch(() => {});
             return { type: 'hls', destroy: () => {} };
         }
+        const { default: Hls } = await import('hls.js');
         if (Hls.isSupported()) {
             const hls = new Hls({ enableWorker: true });
             hls.loadSource(src);
@@ -64,6 +51,7 @@ export const attachStream = (
     }
 
     if (streamType === 'dash') {
+        const { MediaPlayer } = await import('dashjs');
         const player = MediaPlayer().create();
         player.initialize(video, src, false);
         player.on(MediaPlayer.events.STREAM_INITIALIZED, () => video.play().catch(() => {}));
