@@ -52,12 +52,12 @@ export default defineConfig({
         markdownPlugin(),
         // 体积分析报告(treemap)：仅在 ANALYZE=true 时生成，避免日常构建的额外开销
         // 用法：ANALYZE=true pnpm build → 项目根 stats.html
-        process.env.ANALYZE && visualizer({
+        process.env.ANALYZE ? visualizer({
             filename: "stats.html",
             template: "treemap",
             gzipSize: true,
             brotliSize: true,
             open: false,
-        }),
-    ].filter(Boolean),
+        }) : false,
+    ],
 });
