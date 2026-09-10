@@ -86,6 +86,20 @@ const projects: Project[] = [
         language: "TypeScript",
     },
     {
+        name: "实时金融 3D 行情",
+        description: "基于 RxJS + Three.js + WebSocket 的实时金融可视化：mock WS server 推送行情，RxJS 负责流式节流与断线重连，Three.js 用 InstancedMesh 批量渲染 K线柱阵 + 价格波动曲面，按需渲染 + 动画延续使数据静默时 GPU 占用降至 ~0，解决高频数据下的可视化性能、自适应布局与交互动画三大工程问题。",
+        internalPath: "/market-3d",
+        tags: ["React", "Three.js", "WebSocket", "RxJS"],
+        language: "TypeScript",
+    },
+    {
+        name: "实时金融 2D 行情",
+        description: "基于 RxJS + Canvas 2D + WebSocket 的实时金融图表：零图表库依赖手写 K线引擎，新 K线滑入、柱体生长、当前价线与坐标系全部 lerp 平滑，十字光标槽位 O(1) 命中，按需渲染 + 动画延续使数据静默时近零开销；与 3D 版共享同一 mock 数据源与 RxJS 流层。",
+        internalPath: "/market-2d",
+        tags: ["React", "Canvas", "WebSocket", "RxJS"],
+        language: "TypeScript",
+    },
+    {
         name: "zzzzzlc.github.io",
         description: "个人博客网站，使用 React + Vite + antd 构建，Markdown 文章在构建时编译。",
         url: "https://github.com/zzzzzlc/zzzzzlc.github.io",

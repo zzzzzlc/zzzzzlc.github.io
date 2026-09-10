@@ -55,7 +55,7 @@ export function EndpointSearch({ controller }: EndpointSearchProps) {
 
     return (
         <Card style={{ marginBottom: 12 }}>
-            <Space direction="vertical" style={{ width: '100%' }} size="small">
+            <Space orientation="vertical" style={{ width: '100%' }} size="small">
                 <SearchBox
                     label="起点"
                     placeholder="起点：搜索地点或点击地图"

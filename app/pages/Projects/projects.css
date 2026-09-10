@@ -7,10 +7,12 @@
 }
 
 .projects-title {
-    margin: 0 0 6px !important;
-    font-size: var(--fs-xl) !important;
-    font-weight: 700 !important;
-    color: var(--text-base) !important;
+    margin: 0 0 6px;
+    font-family: var(--font-serif);
+    font-size: var(--fs-2xl);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--text-base);
     line-height: var(--lh-tight);
 }
 
@@ -52,8 +54,10 @@
 }
 
 .project-row-name {
+    font-family: var(--font-serif);
     font-size: var(--fs-md);
     font-weight: 600;
+    letter-spacing: 0.01em;
     color: var(--text-base);
     transition: color 0.15s ease;
 }
@@ -65,7 +69,7 @@
 .project-row-lang {
     font-size: var(--fs-xs);
     padding: 1px 8px;
-    border-radius: var(--radius-full);
+    border-radius: 2px;
     background: var(--accent-soft);
     color: var(--accent);
     font-weight: 500;

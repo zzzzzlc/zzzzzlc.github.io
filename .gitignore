@@ -31,3 +31,6 @@ dist-ssr
 .claude/settings.local.json
 #loacl test 
 global.css
+
+# Superpowers brainstorm state
+.superpowers/

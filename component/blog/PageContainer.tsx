@@ -6,9 +6,9 @@ interface PageContainerProps {
     children: React.ReactNode;
     /**
      * 容器宽度档位（对应 .blog-container-{variant} 的 max-width）：
-     * - content（默认 1200px）：列表/网格页主体（首页、分类、项目、关于）
-     * - reading（760px）：纯阅读列（移动端文章页、独立文本页）
-     * - wide（1280px）：双栏布局（文章正文 + 右侧目录）
+     * - content（默认 1320px）：列表/网格页主体（首页、分类、项目、关于）
+     * - reading（800px，--reading-width）：纯阅读列（移动端文章页、独立文本页）
+     * - wide（1440px）：双栏布局（文章正文 + 右侧目录）
      */
     variant?: ContainerVariant;
     className?: string;

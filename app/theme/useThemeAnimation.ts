@@ -163,4 +163,41 @@ export function useThemeAnimation() {
     return toggleAnimationTheme;
 }
 
+/**
+ * 不翻转明暗的主题切换动画（季节切换用）：
+ * 与 toggleAnimationTheme 同一套圆形扩散机制，但 VT 回调里只执行 onApply
+ * （切 data-season + flush React），不动 data-theme / color-scheme，
+ * 因此没有明暗翻转的 color-scheme 临时锁。
+ * 动画方向复用 isDark 参数：dark 时旧画面收缩露出新画面，light 时新画面扩散覆盖。
+ */
+export async function animateThemeSwap(
+    event: ThemeToggleAnchor,
+    isDark: boolean,
+    onApply?: () => void | Promise<void>,
+) {
+    if (!supportsViewTransition || !event) return;
+
+    const x = event.clientX;
+    const y = event.clientY;
+    const endRadius = Math.hypot(
+        Math.max(x, window.innerWidth - x),
+        Math.max(y, window.innerHeight - y),
+    );
+
+    const transition = (document as any).startViewTransition(async () => {
+        if (onApply) await onApply();
+    });
+
+    transition.ready.then(() => {
+        const clipPath = [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${endRadius}px at ${x}px ${y}px)`,
+        ];
+        startAnimationTheme(clipPath, isDark);
+    });
+
+    transition.ready.catch(() => { /* 用户中断时忽略 */ });
+    transition.finished.catch(() => { /* 跳过中断错误 */ });
+}
+
 export { supportsViewTransition };

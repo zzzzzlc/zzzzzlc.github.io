@@ -62,39 +62,48 @@ export function markdownPlugin(): Plugin {
         name: 'vite-plugin-markdown-blog',
 
         configureServer(server) {
-            // 监听 posts 目录变化，使虚拟模块缓存失效
+            // 监听 posts 目录变化，使虚拟模块缓存失效。
+            // chokidar 在 Windows 上可能上报正斜杠路径，先 path.resolve 归一化再比较。
+            const isPostFile = (file: string) => {
+                const resolved = path.resolve(file);
+                return resolved.startsWith(POSTS_DIR + path.sep) && resolved.endsWith('.md');
+            };
+            /** 重编译指定文章入缓存（draft 则移除），并失效相关虚拟模块 + 整页刷新 */
+            const syncPost = (slug: string) => {
+                const filePath = path.join(POSTS_DIR, slug + '.md');
+                if (fs.existsSync(filePath)) {
+                    const raw = fs.readFileSync(filePath, 'utf-8');
+                    const { data, content } = matter(raw);
+                    if (data.draft) {
+                        postsCache.delete(slug);
+                    } else {
+                        compileMarkdown(content).then(html => {
+                            postsCache.set(slug, { frontmatter: data, html });
+                        });
+                    }
+                } else {
+                    postsCache.delete(slug);
+                }
+                const { moduleGraph } = server;
+                const invalidate = (id: string) => {
+                    const mod = moduleGraph.getModuleById('\0' + id);
+                    if (mod) moduleGraph.invalidateModule(mod);
+                };
+                invalidate(VIRTUAL_BLOG_INDEX);
+                invalidate(VIRTUAL_POST_MAP);
+                invalidate(VIRTUAL_BLOG_POST_PREFIX + slug);
+                server.ws.send({ type: 'full-reload' });
+            };
+
             server.watcher.add(POSTS_DIR);
             server.watcher.on('add', (file) => {
-                if (file.startsWith(POSTS_DIR) && file.endsWith('.md')) {
-                    const posts = parseAllPosts();
-                    // 更新缓存
-                    for (const post of posts) {
-                        if (!post.frontmatter.draft && !postsCache.has(post.slug)) {
-                            compileMarkdown(post.content).then(html => {
-                                postsCache.set(post.slug, { frontmatter: post.frontmatter, html });
-                            });
-                        }
-                    }
-                    // 通知 Vite 虚拟模块已更新
-                    const { moduleGraph } = server;
-                    const indexMod = moduleGraph.getModuleById('\0' + VIRTUAL_BLOG_INDEX);
-                    const mapMod = moduleGraph.getModuleById('\0' + VIRTUAL_POST_MAP);
-                    if (indexMod) moduleGraph.invalidateModule(indexMod);
-                    if (mapMod) moduleGraph.invalidateModule(mapMod);
-                    server.ws.send({ type: 'full-reload' });
-                }
+                if (isPostFile(file)) syncPost(path.basename(file, '.md'));
+            });
+            server.watcher.on('change', (file) => {
+                if (isPostFile(file)) syncPost(path.basename(file, '.md'));
             });
             server.watcher.on('unlink', (file) => {
-                if (file.startsWith(POSTS_DIR) && file.endsWith('.md')) {
-                    const slug = path.basename(file, '.md');
-                    postsCache.delete(slug);
-                    const { moduleGraph } = server;
-                    const indexMod = moduleGraph.getModuleById('\0' + VIRTUAL_BLOG_INDEX);
-                    const mapMod = moduleGraph.getModuleById('\0' + VIRTUAL_POST_MAP);
-                    if (indexMod) moduleGraph.invalidateModule(indexMod);
-                    if (mapMod) moduleGraph.invalidateModule(mapMod);
-                    server.ws.send({ type: 'full-reload' });
-                }
+                if (isPostFile(file)) syncPost(path.basename(file, '.md'));
             });
         },
 

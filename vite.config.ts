@@ -8,6 +8,13 @@ export default defineConfig({
     base: "/",
     server: {
         port: process.env.PORT ? parseInt(process.env.PORT) : 3000,
+        // 文章管理页的本地 CRUD 服务（pnpm admin:server），仅 dev 使用
+        proxy: {
+            '/api': {
+                target: 'http://localhost:8788',
+                changeOrigin: true,
+            },
+        },
     },
     build: {
         outDir: "dist",

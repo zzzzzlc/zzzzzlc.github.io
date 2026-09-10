@@ -31,7 +31,7 @@
 }
 
 .prev-next-item:not(.prev-next-placeholder):hover {
-    border-color: var(--accent, #1677ff);
+    border-color: var(--accent, #2e5d4e);
     transform: translateY(-1px);
 }
 

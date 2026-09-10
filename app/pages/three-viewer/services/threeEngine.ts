@@ -77,7 +77,8 @@ export const createThreeEngine = (container: HTMLDivElement): ThreeEngine => {
     // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    // 限制像素比上限为 2，避免高 DPR（dpr=3）设备渲染 9 倍像素拖垮 GPU
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -111,6 +112,12 @@ export const createThreeEngine = (container: HTMLDivElement): ThreeEngine => {
 
     let model: THREE.Object3D | null = null;
     let frameId = 0;
+
+    // —— 按需渲染：仅在有变化时才 renderer.render，闲置时停止绘制，GPU 占用降到接近 0 ——
+    let needsRender = true;                         // 初值 true 保证首帧渲染
+    const invalidate = (): void => { needsRender = true; };
+    // 拖拽 / 缩放 / damping 滑行 / autoRotate 旋转都会持续触发 change，自动维持渲染到稳定
+    controls.addEventListener('change', invalidate);
 
     // 默认模型：环面纽结 + 地板
     const addDefaultModel = () => {
@@ -167,6 +174,7 @@ export const createThreeEngine = (container: HTMLDivElement): ThreeEngine => {
         camera.position.set(center.x + distance * 0.5, center.y + distance * 0.5, center.z + distance);
         controls.target.copy(center);
         controls.update();
+        invalidate();   // 相机 / 目标变化后请求重绘
     };
 
     // 为 STL/OBJ 等无材质或白色材质网格补默认材质（仅在非线框模式下生效）
@@ -196,27 +204,33 @@ export const createThreeEngine = (container: HTMLDivElement): ThreeEngine => {
         });
     };
 
-    // 渲染循环
+    // 渲染循环：每帧推进 damping / autoRotate，但仅脏标记命中时才真正绘制
     const animate = () => {
         frameId = requestAnimationFrame(animate);
         controls.update();
-        renderer.render(scene, camera);
+        if (needsRender) {
+            renderer.render(scene, camera);
+            needsRender = false;
+        }
     };
     animate();
 
-    // 自适应尺寸
+    // 自适应尺寸：ResizeObserver 监听容器（覆盖侧栏折叠等 window.resize 捕获不到的场景）
     const handleResize = () => {
         const w = container.clientWidth;
         const h = container.clientHeight;
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
         renderer.setSize(w, h);
+        invalidate();
     };
-    window.addEventListener('resize', handleResize);
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(container);
 
     return {
         setAutoRotate: (enabled) => {
             controls.autoRotate = enabled;
+            invalidate();   // 开启时后续由 change 持续触发；关闭时补一帧定格
         },
         setWireframe: (enabled) => {
             if (!model) return;
@@ -229,6 +243,7 @@ export const createThreeEngine = (container: HTMLDivElement): ThreeEngine => {
                     }
                 }
             });
+            invalidate();
         },
         loadModel: async (file, wireframe) => {
             const ext = detectFormat(file.name);
@@ -292,13 +307,16 @@ export const createThreeEngine = (container: HTMLDivElement): ThreeEngine => {
             camera.position.set(...CAMERA_INITIAL_POSITION);
             controls.target.set(...CONTROLS_TARGET);
             controls.update();
+            invalidate();
         },
         destroy: () => {
-            window.removeEventListener('resize', handleResize);
+            resizeObserver.disconnect();
+            controls.removeEventListener('change', invalidate);
             cancelAnimationFrame(frameId);
             removeCurrentModel();
             controls.dispose();
             renderer.dispose();
+            renderer.forceContextLoss();   // 主动释放 WebGL 上下文，避免反复进出页面泄漏
             if (renderer.domElement.parentNode === container) {
                 container.removeChild(renderer.domElement);
             }

@@ -24,7 +24,10 @@
         "dev": "vite",
         "build": "tsc -b && vite build",
         "lint": "eslint .",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "mock:market": "node server/market-3d/mock.js",
+        "admin:server": "node server/posts-admin/index.js",
+        "admin:verify": "node server/posts-admin/roundtrip.mjs"
     },
     "dependencies": {
         "@ant-design/icons": "^6.1.1",
@@ -41,13 +44,16 @@
         "pnpm": "^10.28.0",
         "react": "^19.2.3",
         "react-dom": "^19.2.3",
-        "three": "^0.184.0"
+        "rxjs": "^7.8.2",
+        "three": "^0.184.0",
+        "ws": "^8.21.3"
     },
     "devDependencies": {
         "@eslint/js": "^9.39.2",
         "@types/node": "^24.10.7",
         "@types/react": "^19.2.8",
         "@types/react-dom": "^19.2.3",
+        "@types/ws": "^8.18.1",
         "@vitejs/plugin-react": "^5.1.2",
         "eslint": "^9.39.2",
         "eslint-plugin-react-hooks": "^7.0.1",
@@ -55,6 +61,7 @@
         "globals": "^16.5.0",
         "gray-matter": "^4.0.3",
         "husky": "^9.1.7",
+        "puppeteer-core": "^25.5.0",
         "react-router": "^7.13.0",
         "remark-gfm": "^4.0.1",
         "remark-html": "^16.0.1",

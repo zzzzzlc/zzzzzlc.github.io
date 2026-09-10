@@ -24,6 +24,6 @@
 }
 
 .social-link:hover {
-    color: var(--accent, #1677ff);
+    color: var(--accent, #2e5d4e);
     transform: translateY(-1px);
 }

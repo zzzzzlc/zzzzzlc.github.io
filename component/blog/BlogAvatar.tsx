@@ -32,7 +32,7 @@ export default function BlogAvatar({ size = 56 }: BlogAvatarProps) {
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'var(--accent, #1677ff)',
+                color: 'var(--accent, #2e5d4e)',
                 fontWeight: 600,
                 fontSize: size * 0.4,
                 background: 'linear-gradient(135deg, rgba(22, 119, 255, 0.12), rgba(22, 119, 255, 0.04))',

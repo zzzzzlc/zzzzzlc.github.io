@@ -6,6 +6,8 @@ import {
     toggleAnimationTheme,
     useThemeAnimation,
 } from './useThemeAnimation';
+import { useSeasonMode } from './useSeasonMode';
+import { getAntdPrimary, type SeasonName } from './season';
 
 type Mode = 'light' | 'dark';
 
@@ -14,6 +16,11 @@ interface ThemeContextValue {
     toggle: () => void;
     toggleFromEvent: (e: React.MouseEvent) => void;
     setMode: (m: Mode) => void;
+    /** 季节主题（色相层，与亮暗正交） */
+    season: SeasonName;
+    setSeason: (s: SeasonName) => void;
+    /** 带 VT 圆形扩散动画的季节切换 */
+    setSeasonFromEvent: (s: SeasonName, e: { clientX: number; clientY: number }) => void;
 }
 
 const STORAGE_KEY = 'blog-mode';
@@ -22,6 +29,9 @@ const ThemeContext = createContext<ThemeContextValue>({
     toggle: () => { },
     toggleFromEvent: () => { },
     setMode: () => { },
+    season: 'none',
+    setSeason: () => { },
+    setSeasonFromEvent: () => { },
 });
 
 export function useThemeMode(): ThemeContextValue {
@@ -44,6 +54,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         if (saved === 'light' || saved === 'dark') return saved;
         return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     });
+
+    // 季节主题（色相层），逻辑外置于 useSeasonMode
+    const { season, setSeason, setSeasonFromEvent } = useSeasonMode(mode);
 
     const applyMode = (m: Mode) => {
         setModeState(m);
@@ -111,7 +124,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         return () => mq.removeEventListener('change', handler);
     }, []);
 
-    const value = useMemo(() => ({ mode, toggle, toggleFromEvent, setMode }), [mode]);
+    const value = useMemo(
+        () => ({ mode, toggle, toggleFromEvent, setMode, season, setSeason, setSeasonFromEvent }),
+        [mode, season, setSeason, setSeasonFromEvent],
+    );
 
     return (
         <ThemeContext.Provider value={value}>
@@ -119,10 +135,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
                 theme={{
                     algorithm: mode === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
                     token: {
-                        // dark 主色与 CSS 变量 --accent(#3c89e8) 对齐，
-                        // 消除 antd 组件主色与自定义样式层的暗色不一致
-                        colorPrimary: mode === 'dark' ? '#3c89e8' : '#1677ff',
-                        borderRadius: 6,
+                        // 主色与 CSS 变量 --accent 成对对齐：素雅黑白灰为默认，
+                        // 季节主题（data-season）时跟随各季 accent；
+                        // borderRadius 3：antd 组件方角化，跟随整站规则线语言
+                        colorPrimary: getAntdPrimary(mode, season),
+                        borderRadius: 3,
                         fontSize: 14,
                     },
                 }}

@@ -22,6 +22,9 @@ html {
     /* 排版 */
     --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Roboto, 'Helvetica Neue', Arial, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    /* 标题字体：素雅方案下与正文同栈（系统黑体），保留 token 以便后续切换标题字体 */
+    --font-serif: var(--font-sans);
+    --font-display: var(--font-sans);
     --fs-xs: 12px;
     --fs-sm: 13px;
     --fs-base: 15px;
@@ -30,6 +33,7 @@ html {
     --fs-xl: 22px;
     --fs-2xl: 28px;
     --fs-3xl: 34px;
+    --fs-4xl: 44px;
     --lh-tight: 1.3;
     --lh-snug: 1.45;
     --lh-normal: 1.6;
@@ -42,8 +46,9 @@ html {
     --radius-full: 999px;
 
     /* 布局尺寸 */
-    --reading-width: 760px;
+    --reading-width: 800px;
     --toc-width: 240px;
+    --header-height: 56px;
 }
 
 /* ===== 主题切换动画：View Transitions API =====
@@ -52,42 +57,52 @@ html {
    与 JS 注入的 Element.animate 互相干扰）。 */
 
 /* ===== 亮/暗模式：颜色变量层（成对挂 html[data-theme]，随主题切换） ===== */
+/* ===== 素雅黑白灰色板（zinc）：亮=冷白 / 暗=纯灰黑，明度做层级 ===== */
 html[data-theme='light'] {
-    --bg-page: #f5f5f5;
+    --bg-page: #fafafa;
     --bg-container: #ffffff;
     --bg-elevated: #ffffff;
     --bg-card: #ffffff;
-    --text-base: #1f1f1f;
-    --text-secondary: #595959;
-    --text-tertiary: #8c8c8c;
-    --border-base: #d9d9d9;
-    --border-secondary: #e8e8e8;
-    --bg-hover: rgba(22, 119, 255, 0.06);
-    --shadow-card: 0 2px 6px rgba(15, 23, 42, 0.08), 0 8px 24px rgba(15, 23, 42, 0.12);
-    --accent: #1677ff;
-    --accent-soft: rgba(22, 119, 255, 0.08);
-    --accent-strong: #0958d9;
-    --scrollbar-thumb: rgba(0, 0, 0, 0.18);
-    --scrollbar-thumb-hover: rgba(0, 0, 0, 0.32);
+    --text-base: #18181b;
+    --text-secondary: #52525b;
+    --text-tertiary: #a1a1aa;
+    --border-base: #d4d4d4;
+    --border-secondary: #e4e4e7;
+    --rule-strong: #18181b;
+    --bg-hover: rgba(24, 24, 27, 0.05);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+    --accent: #3f3f46;
+    --accent-soft: rgba(24, 24, 27, 0.07);
+    --accent-strong: #18181b;
+    --accent-contrast: #ffffff;
+    /* 亮装饰层：无对比度要求的装饰位（短粗线/下划线/进度条）用亮色，文字层仍用深 accent */
+    --accent-vivid: var(--accent);
+    --header-bg: rgba(255, 255, 255, 0.88);
+    --scrollbar-thumb: rgba(24, 24, 27, 0.18);
+    --scrollbar-thumb-hover: rgba(24, 24, 27, 0.32);
 }
 
 html[data-theme='dark'] {
-    --bg-page: #141414;
-    --bg-container: #1f1f1f;
-    --bg-elevated: #2a2a2a;
-    --bg-card: #2a2a2a;
-    --text-base: #e8e8e8;
-    --text-secondary: #a0a0a0;
-    --text-tertiary: #6e6e6e;
-    --border-base: #454545;
-    --border-secondary: #4a4a4a;
-    --bg-hover: rgba(60, 137, 232, 0.15);
-    --shadow-card: 0 2px 6px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.6);
-    --accent: #3c89e8;
-    --accent-soft: rgba(60, 137, 232, 0.14);
-    --accent-strong: #6aa6f5;
-    --scrollbar-thumb: rgba(255, 255, 255, 0.22);
-    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.36);
+    --bg-page: #101012;
+    --bg-container: #17171a;
+    --bg-elevated: #1e1e22;
+    --bg-card: #1a1a1e;
+    --text-base: #e4e4e7;
+    --text-secondary: #a1a1aa;
+    --text-tertiary: #71717a;
+    --border-base: #303034;
+    --border-secondary: #26262a;
+    --rule-strong: #e4e4e7;
+    --bg-hover: rgba(228, 228, 231, 0.08);
+    --shadow-card: 0 2px 6px rgba(0, 0, 0, 0.45), 0 8px 24px rgba(0, 0, 0, 0.55);
+    --accent: #a1a1aa;
+    --accent-soft: rgba(228, 228, 231, 0.1);
+    --accent-strong: #f4f4f5;
+    --accent-contrast: #101012;
+    --accent-vivid: var(--accent);
+    --header-bg: rgba(16, 16, 18, 0.85);
+    --scrollbar-thumb: rgba(228, 228, 231, 0.2);
+    --scrollbar-thumb-hover: rgba(228, 228, 231, 0.34);
 }
 
 body {
@@ -95,6 +110,215 @@ body {
     color: var(--text-base);
     font-family: var(--font-sans);
 }
+
+/* 素雅选区：近黑底反白（亮）/ 近白底反黑（暗），由 accent-strong/contrast 成对驱动 */
+::selection {
+    background: var(--accent-strong);
+    color: var(--accent-contrast);
+}
+
+/* ===== 季节主题（与亮暗正交的色相层，仅覆盖 accent 系 + 底色色温；文字/边框保持中性） ===== */
+
+/* ----- 春 · 新芽：绿意渗入文字/边线层（墨绿字而非纯灰字），标签解锁花色贴签 ----- */
+html[data-theme='light'][data-season='spring'] {
+    --bg-page: #f9fbf6;
+    --bg-container: #ffffff;
+    --bg-elevated: #ffffff;
+    --bg-card: #ffffff;
+    --text-base: #1a2114;
+    --text-secondary: #4a5540;
+    --text-tertiary: #98a08c;
+    --border-base: #ccd5c2;
+    --border-secondary: #e0e7d8;
+    --rule-strong: #1a2114;
+    --bg-hover: rgba(124, 179, 66, 0.1);
+    --accent: #558b2f;
+    --accent-soft: rgba(124, 179, 66, 0.16);
+    --accent-strong: #3f6b21;
+    --accent-contrast: #ffffff;
+    --accent-vivid: #7cb242;
+    --header-bg: rgba(249, 251, 246, 0.88);
+}
+
+html[data-theme='dark'][data-season='spring'] {
+    --bg-page: #0f120c;
+    --bg-container: #141810;
+    --bg-elevated: #1c2116;
+    --bg-card: #181d12;
+    --text-base: #e2e8d8;
+    --text-secondary: #9aa88c;
+    --text-tertiary: #6e7a62;
+    --border-base: #31382c;
+    --border-secondary: #262c22;
+    --rule-strong: #e2e8d8;
+    --bg-hover: rgba(156, 204, 101, 0.1);
+    --accent: #9ccc65;
+    --accent-soft: rgba(156, 204, 101, 0.12);
+    --accent-strong: #b8e08a;
+    --accent-contrast: #0f120c;
+    --header-bg: rgba(15, 18, 12, 0.85);
+}
+
+/* ----- 夏 · 盛夏林木：翠绿主色（浓于春之嫩绿）+ 树干褐文字色温 + 阳光暖白底 ----- */
+html[data-theme='light'][data-season='summer'] {
+    --bg-page: #f8faf0;
+    --bg-container: #ffffff;
+    --bg-elevated: #ffffff;
+    --bg-card: #ffffff;
+    --text-base: #221c12;
+    --text-secondary: #58503c;
+    --text-tertiary: #a2977e;
+    --border-base: #d6cfbc;
+    --border-secondary: #e6e0d0;
+    --rule-strong: #221c12;
+    --bg-hover: rgba(79, 190, 122, 0.09);
+    --accent: #1a7a3f;
+    --accent-soft: rgba(79, 190, 122, 0.14);
+    --accent-strong: #145c2f;
+    --accent-contrast: #ffffff;
+    --accent-vivid: #2fae62;
+    --header-bg: rgba(248, 250, 240, 0.88);
+}
+
+html[data-theme='dark'][data-season='summer'] {
+    --bg-page: #0c1310;
+    --bg-container: #111a14;
+    --bg-elevated: #18241c;
+    --bg-card: #141f18;
+    --text-base: #dfeadf;
+    --text-secondary: #93a893;
+    --text-tertiary: #67796a;
+    --border-base: #2c3a2f;
+    --border-secondary: #222e25;
+    --rule-strong: #dfeadf;
+    --bg-hover: rgba(79, 190, 122, 0.1);
+    --accent: #4fbe7a;
+    --accent-soft: rgba(79, 190, 122, 0.12);
+    --accent-strong: #7fd49b;
+    --accent-contrast: #0c1310;
+    --header-bg: rgba(12, 19, 16, 0.85);
+}
+
+/* ----- 秋 · 丰收：枫叶红橙主色 + 小麦/银杏金黄底与边线 + 落叶褐文字色温 ----- */
+html[data-theme='light'][data-season='autumn'] {
+    --bg-page: #faf7ec;
+    --bg-container: #ffffff;
+    --bg-elevated: #ffffff;
+    --bg-card: #ffffff;
+    --text-base: #241a10;
+    --text-secondary: #5c4d38;
+    --text-tertiary: #a8977c;
+    --border-base: #ddd2b8;
+    --border-secondary: #eae2cf;
+    --rule-strong: #241a10;
+    --bg-hover: rgba(232, 131, 79, 0.09);
+    --accent: #c14a24;
+    --accent-soft: rgba(232, 131, 79, 0.13);
+    --accent-strong: #a03a1a;
+    --accent-contrast: #ffffff;
+    --accent-vivid: #ec8b3f;
+    --header-bg: rgba(250, 247, 236, 0.88);
+}
+
+html[data-theme='dark'][data-season='autumn'] {
+    --bg-page: #13100b;
+    --bg-container: #1a1610;
+    --bg-elevated: #241f16;
+    --bg-card: #1f1a12;
+    --text-base: #ece4d4;
+    --text-secondary: #ab9d84;
+    --text-tertiary: #7d7260;
+    --border-base: #3a3226;
+    --border-secondary: #2d271d;
+    --rule-strong: #ece4d4;
+    --bg-hover: rgba(232, 131, 79, 0.1);
+    --accent: #e8834f;
+    --accent-soft: rgba(232, 131, 79, 0.12);
+    --accent-strong: #f2a273;
+    --accent-contrast: #13100b;
+    --header-bg: rgba(19, 16, 11, 0.85);
+}
+
+/* ----- 冬 · 雪梅：雪白霜线 + 枯枝褐文字（非黑）+ 梅红点缀（雪世界里枯枝与梅） ----- */
+html[data-theme='light'][data-season='winter'] {
+    --bg-page: #f0f3f7;
+    --bg-container: #ffffff;
+    --bg-elevated: #ffffff;
+    --bg-card: #ffffff;
+    --text-base: #584e42;
+    --text-secondary: #7a6e5f;
+    --text-tertiary: #a39888;
+    --border-base: #e9eef4;
+    --border-secondary: #f3f6fa;
+    --rule-strong: #584e42;
+    --bg-hover: rgba(240, 86, 99, 0.08);
+    --accent: #c62f4b;
+    --accent-soft: rgba(240, 86, 99, 0.12);
+    --accent-strong: #a8213c;
+    --accent-contrast: #ffffff;
+    --accent-vivid: #ef5d70;
+    --header-bg: rgba(240, 243, 247, 0.88);
+}
+
+html[data-theme='dark'][data-season='winter'] {
+    --bg-page: #0b0f14;
+    --bg-container: #10151c;
+    --bg-elevated: #171e26;
+    --bg-card: #141a21;
+    --text-base: #eae6df;
+    --text-secondary: #a8a294;
+    --text-tertiary: #736d60;
+    --border-base: #324050;
+    --border-secondary: #263140;
+    --rule-strong: #eae6df;
+    --bg-hover: rgba(240, 86, 99, 0.1);
+    --accent: #f05663;
+    --accent-soft: rgba(240, 86, 99, 0.14);
+    --accent-strong: #ff7a86;
+    --accent-contrast: #0b0f14;
+    --header-bg: rgba(11, 15, 20, 0.85);
+}
+
+/* 冬季限定字距：疏朗空旷的雪原感 —— 全站字距微开，标题更甚 */
+html[data-season='winter'] body {
+    letter-spacing: 0.02em;
+}
+
+html[data-season='winter'] .blog-logo,
+html[data-season='winter'] .section-heading,
+html[data-season='winter'] .post-card-title,
+html[data-season='winter'] .post-title {
+    letter-spacing: 0.045em;
+}
+
+/* ----- 春季限定：标签按花的颜色设计（花色浅底贴签）-----
+   仅在 data-season='spring' 下激活；其余季节回落为素雅灰阶贴签。
+   花色映射：ai紫藤 / frontend飞燕草 / engineering万寿菊 / mobile翠雀 / database山茶
+             language油菜花 / devops四叶草 / system鸢尾 / testing桃花 / tool蔷薇 / default梨花 */
+html[data-season='spring'] .home-tag-ai           { background: rgba(138, 99, 184, 0.1) !important; color: #8a63b8 !important; border-color: rgba(138, 99, 184, 0.35) !important; }
+html[data-season='spring'] .home-tag-frontend     { background: rgba(63, 127, 174, 0.1) !important; color: #3f7fae !important; border-color: rgba(63, 127, 174, 0.35) !important; }
+html[data-season='spring'] .home-tag-engineering  { background: rgba(194, 112, 29, 0.1) !important; color: #c2701d !important; border-color: rgba(194, 112, 29, 0.35) !important; }
+html[data-season='spring'] .home-tag-mobile       { background: rgba(43, 138, 150, 0.1) !important; color: #2b8a96 !important; border-color: rgba(43, 138, 150, 0.35) !important; }
+html[data-season='spring'] .home-tag-database     { background: rgba(191, 74, 63, 0.1) !important; color: #bf4a3f !important; border-color: rgba(191, 74, 63, 0.35) !important; }
+html[data-season='spring'] .home-tag-language     { background: rgba(181, 149, 31, 0.12) !important; color: #9a7c14 !important; border-color: rgba(181, 149, 31, 0.35) !important; }
+html[data-season='spring'] .home-tag-devops       { background: rgba(85, 145, 63, 0.1) !important; color: #55913f !important; border-color: rgba(85, 145, 63, 0.35) !important; }
+html[data-season='spring'] .home-tag-system       { background: rgba(95, 99, 184, 0.1) !important; color: #5f63b8 !important; border-color: rgba(95, 99, 184, 0.35) !important; }
+html[data-season='spring'] .home-tag-testing      { background: rgba(207, 111, 138, 0.1) !important; color: #cf6f8a !important; border-color: rgba(207, 111, 138, 0.35) !important; }
+html[data-season='spring'] .home-tag-tool         { background: rgba(189, 74, 126, 0.1) !important; color: #bd4a7e !important; border-color: rgba(189, 74, 126, 0.35) !important; }
+html[data-season='spring'] .home-tag-default      { background: rgba(138, 138, 130, 0.08) !important; color: #6f6f66 !important; border-color: rgba(138, 138, 130, 0.3) !important; }
+
+/* 春季暗色：亮花色文字 + 深色底上的半透明花底 */
+html[data-theme='dark'][data-season='spring'] .home-tag-ai           { background: rgba(183, 156, 232, 0.12) !important; color: #b79ce8 !important; border-color: rgba(183, 156, 232, 0.4) !important; }
+html[data-theme='dark'][data-season='spring'] .home-tag-frontend     { background: rgba(134, 184, 227, 0.12) !important; color: #86b8e3 !important; border-color: rgba(134, 184, 227, 0.4) !important; }
+html[data-theme='dark'][data-season='spring'] .home-tag-engineering  { background: rgba(224, 168, 99, 0.12) !important; color: #e0a863 !important; border-color: rgba(224, 168, 99, 0.4) !important; }
+html[data-theme='dark'][data-season='spring'] .home-tag-mobile       { background: rgba(124, 207, 218, 0.12) !important; color: #7ccfda !important; border-color: rgba(124, 207, 218, 0.4) !important; }
+html[data-theme='dark'][data-season='spring'] .home-tag-database     { background: rgba(239, 149, 140, 0.12) !important; color: #ef958c !important; border-color: rgba(239, 149, 140, 0.4) !important; }
+html[data-theme='dark'][data-season='spring'] .home-tag-language     { background: rgba(223, 195, 99, 0.12) !important; color: #dfc363 !important; border-color: rgba(223, 195, 99, 0.4) !important; }
+html[data-theme='dark'][data-season='spring'] .home-tag-devops       { background: rgba(143, 212, 122, 0.12) !important; color: #8fd47a !important; border-color: rgba(143, 212, 122, 0.4) !important; }
+html[data-theme='dark'][data-season='spring'] .home-tag-system       { background: rgba(163, 170, 232, 0.12) !important; color: #a3aae8 !important; border-color: rgba(163, 170, 232, 0.4) !important; }
+html[data-theme='dark'][data-season='spring'] .home-tag-testing      { background: rgba(237, 164, 184, 0.12) !important; color: #eda4b8 !important; border-color: rgba(237, 164, 184, 0.4) !important; }
+html[data-theme='dark'][data-season='spring'] .home-tag-tool         { background: rgba(224, 140, 176, 0.12) !important; color: #e08cb0 !important; border-color: rgba(224, 140, 176, 0.4) !important; }
+html[data-theme='dark'][data-season='spring'] .home-tag-default      { background: rgba(181, 181, 173, 0.1) !important; color: #b5b5ad !important; border-color: rgba(181, 181, 173, 0.35) !important; }
 
 /* ===== 全局滚动条定制（颜色走 CSS 变量，跟随主题切换） =====
    Firefox：scrollbar-width + scrollbar-color（仅支持 thumb/track 两态）
@@ -128,7 +352,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:active {
-    background: var(--accent);
+    background: var(--accent-vivid);
     background-clip: padding-box;
 }
 
@@ -154,7 +378,9 @@ html[data-vt='false'] body {
 .markdown-body h6 {
     margin-top: 1.6em;
     margin-bottom: 0.6em;
-    font-weight: 600;
+    font-family: var(--font-serif);
+    font-weight: 700;
+    letter-spacing: 0.01em;
     line-height: var(--lh-tight);
     scroll-margin-top: 80px;
     color: var(--text-base);
@@ -206,11 +432,10 @@ html[data-vt='false'] body {
     border: 1px solid transparent;
 }
 
+/* 期刊式裸线引文：无底色，仅左侧 accent 线 */
 .markdown-body blockquote {
-    border-left: 3px solid var(--accent);
-    background: var(--accent-soft);
-    padding: var(--space-sm) var(--space-md);
-    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    border-left: 3px solid var(--accent-vivid);
+    padding: 4px 0 4px 20px;
     color: var(--text-secondary);
     margin: 1.2em 0;
 }
@@ -279,7 +504,7 @@ html[data-vt='false'] body {
     width: 260px;
     flex-shrink: 0;
     padding: 16px 12px 16px 20px;
-    border-left: 2px solid var(--border-base);
+    border-left: 1px solid var(--border-secondary);
     font-family: var(--font-sans);
 }
 
@@ -297,11 +522,12 @@ html[data-vt='false'] body {
 }
 
 .toc-title {
-    font-size: 13px;
+    font-family: var(--font-mono);
+    font-size: 12px;
     font-weight: 600;
     color: var(--text-secondary);
     margin-bottom: 14px;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
 }
 
@@ -400,33 +626,8 @@ html[data-vt='false'] body {
 
 /* TOC 的显隐断点由各使用方（如 BlogPost 的 .post-body .toc-nav）自行管理 */
 
-/* ===== 站点 Tag 配色板（11 类，全站复用） =====
-   基础 .home-tag 类样式见文件末尾"新版博客布局"区块
-   这里只保留各 kind 的具体颜色 */
-.home-tag-ai           { background: #f3e8ff !important; color: #7c3aed !important; }
-.home-tag-frontend     { background: #e0f2fe !important; color: #0369a1 !important; }
-.home-tag-engineering  { background: #fef3c7 !important; color: #b45309 !important; }
-.home-tag-mobile       { background: #cffafe !important; color: #0e7490 !important; }
-.home-tag-database     { background: #fee2e2 !important; color: #b91c1c !important; }
-.home-tag-language     { background: #fef9c3 !important; color: #a16207 !important; }
-.home-tag-devops       { background: #d1fae5 !important; color: #047857 !important; }
-.home-tag-system       { background: #e0e7ff !important; color: #4338ca !important; }
-.home-tag-testing      { background: #f0fdf4 !important; color: #15803d !important; }
-.home-tag-tool         { background: #f5f3ff !important; color: #6d28d9 !important; }
-.home-tag-default      { background: #f0f0f0 !important; color: #595959 !important; }
-
-/* 暗色模式标签：深底 + 亮字，保证对比度 ≥4.5:1（替代原 opacity:0.82 兜底） */
-html[data-theme='dark'] .home-tag-ai          { background: #2a1a4a !important; color: #c4a6f7 !important; }
-html[data-theme='dark'] .home-tag-frontend    { background: #0e2a43 !important; color: #7cc3f5 !important; }
-html[data-theme='dark'] .home-tag-engineering { background: #3a2a0e !important; color: #f0c06a !important; }
-html[data-theme='dark'] .home-tag-mobile      { background: #0e3a3f !important; color: #5fd0db !important; }
-html[data-theme='dark'] .home-tag-database    { background: #3a1515 !important; color: #f58888 !important; }
-html[data-theme='dark'] .home-tag-language    { background: #3a3015 !important; color: #e8c452 !important; }
-html[data-theme='dark'] .home-tag-devops      { background: #0e3a26 !important; color: #5fd9a3 !important; }
-html[data-theme='dark'] .home-tag-system      { background: #1a2040 !important; color: #9aa3f5 !important; }
-html[data-theme='dark'] .home-tag-testing     { background: #143a1e !important; color: #6fe09a !important; }
-html[data-theme='dark'] .home-tag-tool        { background: #241a40 !important; color: #b599f0 !important; }
-html[data-theme='dark'] .home-tag-default     { background: #333333 !important; color: #bfbfbf !important; }
+/* ===== 站点 Tag：素雅统一灰阶（kind 类仅作语义钩子，不再着色） =====
+   样式由文件末尾基础 .home-tag 类统一提供（灰字 + 细边框贴签） */
 
 
 /* ===== 全局 antd 卡片样式（供 9 个工具页复用；博客内容页已改用 .post-card） ===== */
@@ -440,7 +641,7 @@ html[data-theme='dark'] .home-tag-default     { background: #333333 !important; 
    避免表单/工具栏等纯静态卡片跟随鼠标抖动） */
 .ant-card.ant-card-hoverable:hover,
 .ant-card.card-hover:hover {
-    box-shadow: 0 4px 8px rgba(15, 23, 42, 0.06), 0 16px 40px rgba(15, 23, 42, 0.12) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06), 0 16px 40px rgba(0, 0, 0, 0.12) !important;
     transform: translateY(-2px);
     border-color: var(--accent) !important;
 }
@@ -493,7 +694,7 @@ html[data-theme='dark'] .ant-card.card-hover:hover {
 
 .post-card-category {
     padding: 1px 8px;
-    border-radius: var(--radius-full);
+    border-radius: 2px;
     background: var(--accent-soft);
     color: var(--accent);
     font-size: var(--fs-xs);
@@ -506,8 +707,10 @@ html[data-theme='dark'] .ant-card.card-hover:hover {
 }
 
 .post-card-title {
-    font-size: var(--fs-md);
+    font-family: var(--font-serif);
+    font-size: 17px;
     font-weight: 600;
+    letter-spacing: 0.01em;
     color: var(--text-base);
     text-decoration: none;
     line-height: var(--lh-snug);
@@ -543,13 +746,29 @@ html[data-theme='dark'] .ant-card.card-hover:hover {
     padding-top: 4px;
 }
 
-/* ===== 共享区块标题（替代各页自定义 .about-heading / .projects-title 等） ===== */
+/* ===== 共享区块标题（替代各页自定义 .about-heading / .projects-title 等） =====
+   期刊母题：衬线标题 + 底部细线 + 左侧 accent 短粗线 */
 .section-heading {
     margin: 0 0 var(--space-md);
-    font-size: var(--fs-lg);
-    font-weight: 600;
+    font-family: var(--font-serif);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
     color: var(--text-base);
     line-height: var(--lh-tight);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-secondary);
+    position: relative;
+}
+
+.section-heading::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 32px;
+    height: 3px;
+    background: var(--accent-vivid);
 }
 
 /* ============================================================ */
@@ -563,6 +782,7 @@ html[data-theme='dark'] .ant-card.card-hover:hover {
     flex-direction: column;
 }
 
+/* 刊头：顶部 3px 粗线 + 底部 1px 细线构成粗细双线制（期刊 masthead） */
 .blog-header {
     display: flex;
     align-items: center;
@@ -574,29 +794,25 @@ html[data-theme='dark'] .ant-card.card-hover:hover {
     z-index: 100;
     backdrop-filter: saturate(180%) blur(8px);
     -webkit-backdrop-filter: saturate(180%) blur(8px);
-    background: rgba(255, 255, 255, 0.85);
+    background: var(--header-bg);
+    border-top: 3px solid var(--rule-strong);
     border-bottom: 1px solid var(--border-secondary);
 }
 
-html[data-theme='dark'] .blog-header {
-    background: rgba(20, 20, 20, 0.85);
-}
-
 .blog-logo {
-    font-size: 16px;
+    font-family: var(--font-serif);
+    font-size: 18px;
     font-weight: 700;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.02em;
     color: var(--text-base);
     text-decoration: none;
-    padding: 4px 8px;
-    border-radius: 4px;
-    transition: color 0.18s ease, background 0.18s ease;
+    padding: 4px 2px;
+    transition: color 0.18s ease;
     flex-shrink: 0;
 }
 
 .blog-logo:hover {
     color: var(--accent);
-    background: var(--accent-soft);
 }
 
 .blog-nav {
@@ -607,30 +823,43 @@ html[data-theme='dark'] .blog-header {
     min-width: 0;
 }
 
+/* 期刊导航：方角下划线式，编号用 mono 小字 */
+.blog-nav-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-right: 6px;
+}
+
 .blog-nav-link {
     appearance: none;
     border: none;
+    border-bottom: 2px solid transparent;
     background: transparent;
     color: var(--text-secondary);
     cursor: pointer;
     font-size: 14px;
     line-height: 1;
-    padding: 8px 12px;
-    border-radius: 999px;
-    transition: color 0.18s ease, background-color 0.18s ease;
+    padding: 8px 4px 10px;
+    margin-top: -2px;
+    border-radius: 0;
+    transition: color 0.18s ease, border-color 0.18s ease;
 }
 
 .blog-nav-link:hover,
 .blog-nav-link:focus-visible {
     color: var(--accent);
-    background: var(--accent-soft);
     outline: none;
 }
 
 .blog-nav-link-active {
-    color: var(--accent);
-    background: var(--accent-soft);
+    color: var(--accent-strong);
+    border-bottom-color: var(--accent-vivid);
     font-weight: 600;
+}
+
+.blog-nav-link-active .blog-nav-num {
+    color: var(--accent);
 }
 
 .blog-header-actions {
@@ -651,7 +880,7 @@ html[data-theme='dark'] .blog-header {
     gap: 8px;
     padding: 0 12px;
     height: 36px;
-    border-radius: 999px;
+    border-radius: 2px;
     background: var(--bg-elevated);
     border: 1px solid var(--border-secondary);
     transition: border-color 0.18s ease, box-shadow 0.18s ease;
@@ -705,7 +934,7 @@ html[data-theme='dark'] .blog-header {
     max-height: 320px;
     overflow: auto;
     padding: 8px;
-    border-radius: 16px;
+    border-radius: 2px;
     background: var(--bg-elevated);
     border: 1px solid var(--border-secondary);
     box-shadow: var(--shadow-card);
@@ -764,7 +993,7 @@ html[data-theme='dark'] .blog-header {
     cursor: pointer;
     width: 36px;
     height: 36px;
-    border-radius: 50%;
+    border-radius: 2px;
     font-size: 16px;
     transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
 }
@@ -784,16 +1013,16 @@ html[data-theme='dark'] .blog-header {
 
 /* 容器基类：居中 + 左右内边距，宽度由 variant 修饰类控制 */
 .blog-container {
-    max-width: 1200px;
+    max-width: 1320px;
     margin: 0 auto;
     width: 100%;
     padding: 0 var(--page-gutter);
     box-sizing: border-box;
 }
 
-/* 宽度档位 */
+/* 宽度档位（宽屏充分利用：content 1320 / wide 1440） */
 .blog-container-content {
-    max-width: 1200px;
+    max-width: 1320px;
 }
 
 .blog-container-reading {
@@ -801,7 +1030,7 @@ html[data-theme='dark'] .blog-header {
 }
 
 .blog-container-wide {
-    max-width: 1280px;
+    max-width: 1440px;
 }
 
 @media (max-width: 768px) {
@@ -810,10 +1039,20 @@ html[data-theme='dark'] .blog-header {
     }
 }
 
-/* ---------- Footer ---------- */
+/* ---------- Footer：顶部粗细双线制（3px 刊行粗线 + 1px 细线） ---------- */
 .blog-footer {
-    border-top: 1px solid var(--border-base);
+    border-top: 3px solid var(--rule-strong);
     padding: 40px 32px 24px;
+    position: relative;
+}
+
+.blog-footer::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 0;
+    right: 0;
+    border-top: 1px solid var(--border-secondary);
 }
 
 .blog-footer-inner {
@@ -830,7 +1069,10 @@ html[data-theme='dark'] .blog-header {
 }
 
 .blog-footer-name a {
-    font-weight: 600;
+    font-family: var(--font-serif);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
     color: var(--text-base);
     text-decoration: none;
     transition: color 0.18s ease;
@@ -866,11 +1108,12 @@ html[data-theme='dark'] .blog-header {
 }
 
 .blog-footer-heading {
-    font-size: 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
     font-weight: 600;
     color: var(--text-secondary);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
     margin-bottom: 10px;
 }
 
@@ -898,9 +1141,11 @@ html[data-theme='dark'] .blog-header {
 }
 
 .blog-footer-powered {
-    font-size: 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.3px;
     color: var(--text-secondary);
-    opacity: 0.7;
+    opacity: 0.75;
 }
 
 @media (max-width: 768px) {
@@ -942,16 +1187,48 @@ html[data-theme='dark'] .blog-header {
     color: var(--accent);
 }
 
-/* 站点统一 Tag pill 基础类（与 Home 现有 .home-tag 配合） */
+/* ---------- 站点统一悬浮按钮（回到顶部 / 返回）----------
+   基类收编位置/尺寸/动效，颜色由修饰类提供，跟随主题 token */
+.blog-float-btn {
+    position: fixed;
+    right: 32px;
+    z-index: 100;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: var(--shadow-card);
+    border: none;
+    border-radius: 50%;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.blog-float-btn--top {
+    bottom: 64px;
+    background: var(--accent);
+    color: var(--accent-contrast);
+}
+
+.blog-float-btn--goback {
+    bottom: 120px;
+    background: var(--bg-elevated);
+    color: var(--text-base);
+    border: 1px solid var(--border-secondary);
+}
+
+/* 站点统一 Tag 基础类（印刷贴签：方角 + 透明底 + 细边框，颜色由 kind 类提供） */
 .home-tag {
     display: inline-flex;
     align-items: center;
     padding: 2px 10px;
-    border-radius: 999px;
+    border-radius: 2px;
     font-size: 12px;
     line-height: 1.6;
-    border: 1px solid transparent;
-    background: var(--bg-elevated);
+    border: 1px solid var(--border-secondary);
+    background: transparent;
     color: var(--text-secondary);
     cursor: default;
     user-select: none;
@@ -961,21 +1238,19 @@ html[data-theme='dark'] .blog-header {
 .home-tag-clickable,
 .home-tag-clickable.home-tag {
     cursor: pointer;
-    background: transparent;
-    border-color: var(--border-base);
 }
 
 .home-tag-clickable:hover {
     transform: translateY(-1px);
-    border-color: var(--accent);
-    color: var(--accent);
+    border-color: var(--accent) !important;
+    color: var(--accent) !important;
 }
 
 .home-tag-active,
 .home-tag-active.home-tag-clickable {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: var(--accent-contrast) !important;
 }
 
 .home-tag-small {

@@ -57,7 +57,7 @@ export interface BpmnEngine {
 export const createBpmnEngine = (container: HTMLElement): BpmnEngine => {
     const modeler = new BpmnModeler({
         container,
-        keyboard: { bindTo: document },
+        // keyboard binding 现已 implicit（diagram-js#661），不再显式 bindTo
     });
 
     return {

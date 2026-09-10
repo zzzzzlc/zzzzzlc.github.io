@@ -1,0 +1,282 @@
+/* 文章管理页 —— 全部使用站点设计令牌，自动适配明暗主题 */
+
+.admin-page {
+    padding-block: var(--space-lg) var(--space-2xl);
+}
+
+.admin-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: var(--space-lg);
+}
+
+.admin-title {
+    font-family: var(--font-serif);
+    font-size: var(--fs-2xl);
+    color: var(--text-base);
+    margin: 0;
+}
+
+.admin-subtitle {
+    color: var(--text-tertiary);
+    font-size: var(--fs-sm);
+    margin: var(--space-xs) 0 0;
+}
+
+/* 双栏：左列表 + 右编辑器 */
+.admin-layout {
+    display: grid;
+    grid-template-columns: minmax(320px, 420px) 1fr;
+    gap: var(--space-lg);
+    align-items: start;
+}
+
+@media (max-width: 1000px) {
+    .admin-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ---- 左栏列表 ---- */
+
+.admin-list-pane {
+    background: var(--bg-card);
+    border: 1px solid var(--border-base);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm);
+}
+
+.admin-list-toolbar {
+    display: flex;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-sm);
+}
+
+.post-row {
+    cursor: pointer;
+}
+
+.post-row-active > td {
+    background: var(--bg-hover) !important;
+}
+
+.post-title-cell {
+    font-weight: 600;
+}
+
+.post-row-actions {
+    visibility: hidden;
+    white-space: nowrap;
+}
+
+.post-row:hover .post-row-actions,
+.post-row-active .post-row-actions {
+    visibility: visible;
+}
+
+/* ---- 右栏编辑器 ---- */
+
+.admin-editor-pane {
+    background: var(--bg-card);
+    border: 1px solid var(--border-base);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+}
+
+.admin-editor-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-sm);
+}
+
+.admin-editor-title {
+    font-size: var(--fs-lg);
+    color: var(--text-base);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.dirty-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--accent);
+    display: inline-block;
+}
+
+.meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 var(--space-md);
+}
+
+.slug-rename-hint {
+    color: var(--accent);
+    font-size: var(--fs-xs);
+}
+
+.meta-draft-item {
+    margin-bottom: 0;
+}
+
+/* ---- 块编辑器 ---- */
+
+.blocks-editor {
+    margin-top: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.block-card {
+    background: var(--bg-container);
+    border: 1px solid var(--border-base);
+    border-radius: var(--radius-sm);
+    padding: var(--space-sm) var(--space-md);
+}
+
+.block-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-xs);
+}
+
+.block-type-tag {
+    font-size: var(--fs-xs);
+    color: var(--text-secondary);
+    background: var(--bg-hover);
+    border-radius: var(--radius-sm);
+    padding: 1px 8px;
+    margin-right: var(--space-xs);
+}
+
+.block-card-actions {
+    display: inline-flex;
+    gap: 2px;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.block-card:hover .block-card-actions {
+    opacity: 1;
+}
+
+.block-editor-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.block-editor-row .ant-input,
+.block-editor-row .ant-select,
+.block-editor-row .ant-input-number {
+    flex: 1;
+}
+
+.block-editor-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.block-editor-hint {
+    font-size: var(--fs-xs);
+    color: var(--text-tertiary);
+}
+
+.block-level-select {
+    width: 76px;
+    flex: none !important;
+}
+
+.block-lang-select {
+    width: 180px;
+    flex: none;
+}
+
+.mono-area {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+}
+
+/* 列表块 */
+.list-marker {
+    color: var(--text-secondary);
+    min-width: 28px;
+    text-align: right;
+    font-size: var(--fs-sm);
+    flex: none;
+}
+
+.list-start {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: var(--fs-xs);
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.list-start .ant-input-number {
+    width: 72px;
+}
+
+/* 表格块 */
+.table-grid-row {
+    display: flex;
+    gap: var(--space-xs);
+    align-items: center;
+}
+
+.table-grid-row .ant-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.table-head-row .ant-input {
+    font-weight: 600;
+}
+
+.table-cell {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+}
+
+/* 分割线预览 */
+.hr-preview {
+    border: none;
+    border-top: 2px solid var(--border-base);
+    margin: var(--space-xs) 0;
+}
+
+/* 兜底块弱化 */
+.block-card-raw .block-card-body {
+    opacity: 0.75;
+}
+
+/* 插入块插槽 */
+.add-block-slot {
+    display: flex;
+    justify-content: center;
+    min-height: 8px;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.blocks-editor:hover .add-block-slot,
+.add-block-slot:focus-within {
+    opacity: 1;
+}
+
+.add-block-btn {
+    color: var(--text-tertiary);
+    font-size: var(--fs-xs);
+}

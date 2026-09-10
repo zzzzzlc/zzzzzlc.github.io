@@ -86,6 +86,21 @@ const routes: RouteObject[] = [
                 path: "media-player",
                 id: "影视频播放器",
                 element: React.createElement(React.lazy(() => import("../pages/media-player"))),
+            },
+            {
+                path: "market-3d",
+                id: "实时行情3D",
+                element: React.createElement(React.lazy(() => import("../pages/market-3d"))),
+            },
+            {
+                path: "market-2d",
+                id: "实时行情2D",
+                element: React.createElement(React.lazy(() => import("../pages/market-2d"))),
+            },
+            {
+                path: "admin",
+                id: "文章管理",
+                element: React.createElement(React.lazy(() => import("../pages/admin"))),
             }
         ],
     },

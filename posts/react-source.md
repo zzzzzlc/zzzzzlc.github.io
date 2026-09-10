@@ -1,17 +1,20 @@
 ---
-title: React 源码解读
+title: React 进阶
 date: '2025-08-29'
 tags:
   - React
   - 前端
+  - 性能优化
+  - Hooks
+  - 组件设计
 category: 技术
 summary: >-
-  从 React 的设计理念出发，梳理其发展历程与架构演进，深入解读 Fiber 架构、调和算法、Hooks 实现、并发模式等核心源码设计，并分析 React
-  19 的重大变化。
+  从 React 的设计理念出发，深入解读 Fiber 架构、调和算法、Hooks 实现、并发模式等核心源码设计，并延伸到工程实践进阶——性能优化（重渲染治理、虚拟列表、并发降级）、高阶组件（HOC 与 Hooks/Render
+  Props 对比）、组件封装（受控模式、复合组件、Headless UI）、自定义 Hooks 设计，覆盖问题来源、多方案对比、优缺点、适配场景与局限性。
 ---
-# React 源码解读
+# React 进阶
 
-React 不只是一个 UI 库，其背后的设计思想深刻影响了整个前端生态。本文将从源码层面解析 React 的核心架构。
+React 不只是一个 UI 库，其背后的设计思想深刻影响了整个前端生态。本文既从源码层面解析 React 的核心架构（Fiber、调和算法、Hooks、并发模式、React 19），也延伸到日常工程的进阶实践——性能优化、高阶组件、组件封装、自定义 Hooks，把底层原理与上层用法打通。
 
 ## 一、React 发展历程
 
@@ -907,21 +910,503 @@ function commitRoot(root) {
 }
 ```
 
+## 十、React 性能优化
+
+### 1. 问题来源
+
+随着应用规模增长，最常遇到的性能问题几乎都指向一个字——**重渲染**。输入框打字卡顿、切 tab 闪屏、长列表滚动掉帧，根因往往是"渲染了不该渲染的组件"或"一次渲染做了太多事"。所以性能优化的第一步永远是**度量**，而不是凭感觉加 memo。
+
+```
+React DevTools Profiler → 录制一次交互 → 看哪条 commit 耗时长、哪些组件本不该渲染
+why-did-you-render      → 开发期打印"本不该重渲染却重渲染了"的组件
+Chrome Performance      → 看主线程 long task、火焰图定位瓶颈
+```
+
+**铁律：** 没有数据支撑的 memo / useCallback 都是玄学。先 Profiler 定位，再针对性优化。
+
+### 2. 减少不必要的重渲染（核心）
+
+父组件重渲染时，所有子组件默认都会重渲染——即使它的 props 没变。治理方式主要有三种，按场景选用：
+
+```jsx
+// 方案 A：React.memo —— 包裹整个组件，对 props 做浅比较
+const ExpensiveList = React.memo(function List({ items, onClick }) {
+    return items.map(item => (
+        <div key={item.id} onClick={() => onClick(item)}>{item.name}</div>
+    ));
+});
+// 仅当 props 浅比较发生变化时才重渲染
+
+// 方案 B：useMemo / useCallback —— 稳定传给子组件的对象/函数引用
+function Parent() {
+    const items = useMemo(() => heavyCompute(), [deps]);        // 稳定数组引用
+    const handleClick = useCallback((item) => { /* ... */ }, []); // 稳定函数引用
+    return <ExpensiveList items={items} onClick={handleClick} />;
+}
+
+// 方案 C：PureComponent / shouldComponentUpdate —— 类组件时代的方案
+class List extends React.PureComponent { /* 浅比较 props + state */ }
+```
+
+| 方案 | 适用 | 原理 | 局限 |
+|------|------|------|------|
+| `React.memo` | 函数组件整体跳过 | 浅比较 props | 内联对象/函数会使其失效 |
+| `useMemo/useCallback` | 稳定引用传给子组件 | 缓存值/函数 | 依赖数组写错 → 闭包陷阱 |
+| `PureComponent` | 类组件 | 浅比较 props+state | 函数组件用不了 |
+
+**关键陷阱：** memo 失效几乎都是引用相等问题——`style={{ color: 'red' }}`、`onClick={() => ...}` 每次 render 都是新引用，浅比较必不相等（见 5.2 fiber 的 `memoizedProps`）。要么把 memo 组件当"昂贵资源"对待（每个 prop 都稳定），要么干脆别 memo。
+
+### 3. 状态下移与就近放置（state collocation）
+
+```jsx
+// ❌ 父组件持有输入框文本，每次按键整棵树重渲染
+function Page() {
+    const [keyword, setKeyword] = useState('');
+    return (
+        <>
+            <SearchInput value={keyword} onChange={setKeyword} />
+            <ExpensiveChart />   {/* 跟着输入一起重渲染，毫无必要 */}
+        </>
+    );
+}
+
+// ✅ 把状态下沉到真正需要它的组件内部
+function Page() {
+    return (
+        <>
+            <SearchInput />      {/* 文本状态自己管 */}
+            <ExpensiveChart />   {/* 不再受输入影响 */}
+        </>
+    );
+}
+```
+
+**这是性价比最高的优化**——一行 memo 都不用写，只靠"状态该放哪放哪"就能消除大半无谓的重渲染。
+
+### 4. 长列表：虚拟化
+
+DOM 节点超过几百个，浏览器的布局/绘制成本骤增。无论怎么 memo 都救不了"节点数本身太多"。
+
+```jsx
+// react-window：只渲染视口内的几行
+import { FixedSizeList as List } from 'react-window';
+
+<List height={600} itemCount={100000} itemSize={40} width="100%">
+    {({ index, style }) => <div style={style}>{rows[index]}</div>}
+</List>
+// 10 万行也只渲染约 20 个真实 DOM 节点
+```
+
+| 库 | 体积 | 适用 | 备注 |
+|----|------|------|------|
+| `react-window` | 小 | 等高/等宽列表 | 首选，够轻 |
+| `react-virtualized` | 大 | 不定高、表格、网格 | 功能全但偏重 |
+| `@tanstack/react-virtual` | 中 | 通用、不定高、现代 | headless，最灵活 |
+
+### 5. 并发模式：startTransition / useDeferredValue
+
+把"可以慢一下"的重计算降级，让高优先级交互（输入、点击）不被阻塞（对应 fiber 的 `lanes`，见 5.6）：
+
+```jsx
+// 方案 A：startTransition —— 主动把某次 setState 降级
+function onChange(e) {
+    setKeyword(e.target.value);                             // 高优先级：输入框立即响应
+    startTransition(() => setSearchResults(search(e.target.value))); // 低优先级
+}
+
+// 方案 B：useDeferredValue —— 声明式延迟一个值
+const deferredKeyword = useDeferredValue(keyword);
+<List query={deferredKeyword} />   // List 用延迟值渲染，输入框用即时值
+```
+
+两者等价不同形态：`startTransition` 作用于"触发更新的地方"，`useDeferredValue` 作用于"消费值的地方"。
+
+### 6. 代码分割与懒加载
+
+```jsx
+const Chart = React.lazy(() => import('./Chart'));
+
+<Suspense fallback={<Skeleton />}>
+    <Chart />   {/* 首屏不加载，用到时才请求对应 chunk */}
+</Suspense>
+```
+
+把首屏用不到的重组件拆成独立 chunk，直接降低 TTI（首屏可交互时间）。
+
+### 7. React 19：让编译器替你 memo
+
+```jsx
+// React 19 + React Compiler：自动插入 useMemo/useCallback
+function Search({ items, query }) {
+    const filtered = items.filter(i => i.includes(query));   // 编译器自动记忆化
+    return <List items={filtered} />;
+}
+```
+
+**局限：** Compiler 仍是可选 opt-in，对副作用与外部可变状态有假设；它消除的是"手动 memo 的样板代码"，不是"所有性能问题"。
+
+### 8. 性能优化的边界
+
+- **过早优化是万恶之源**：memo/useCallback 本身有比较与缓存成本，对廉价组件加 memo 可能反而更慢。
+- **Profiler 才是裁判**：体感卡 ≠ 真卡，务必量化后再下手。
+- **架构 > 微优化**：状态下移、组件拆分、虚拟列表的收益，远大于盲目堆 memo。
+
+## 十一、高阶组件（HOC）
+
+### 1. 问题来源
+
+多个组件需要复用同一段逻辑（权限校验、数据拉取、埋点、主题注入）。class 时代没有 Hooks，复用逻辑只能靠 HOC。理解 HOC 不仅是读懂老代码，更是理解"逻辑复用"的演进——为什么 Hooks 出现后 HOC 会逐渐退场。
+
+### 2. HOC 是什么
+
+**高阶组件是一个函数：接收一个组件，返回一个新组件。**
+
+```jsx
+// withAuth：给任意组件包一层"已登录才渲染"
+function withAuth(WrappedComponent) {
+    return function AuthWrapper(props) {
+        const { user } = useContext(AuthContext);
+        if (!user) return <Redirect to="/login" />;
+        return <WrappedComponent {...props} user={user} />;
+    };
+}
+
+const Dashboard = withAuth(DashboardInner);   // 使用：像普通组件一样渲染 <Dashboard />
+```
+
+### 3. 两种经典模式
+
+```jsx
+// 模式 A：Props Proxy（属性代理）—— 最常见
+function withLogging(Wrapped) {
+    return function (props) {
+        useEffect(() => { console.log('mounted', Wrapped.name); }, []);
+        return <Wrapped {...props} extra="注入的新 prop" />;
+    };
+}
+// HOC 控制 props，可增 / 删 / 改传给被包裹组件的属性
+
+// 模式 B：Inheritance Inversion（反向继承）—— 少用
+function withEnhance(Wrapped) {
+    return class extends Wrapped {
+        render() {
+            const tree = super.render();    // 拿到被包裹组件的渲染输出
+            return injectProps(tree);       // 直接改渲染树
+        }
+    };
+}
+// 可拦截 / 替换渲染结果，但破坏封装、易出 bug，慎用
+```
+
+### 4. 三个经典坑
+
+```jsx
+// 坑 1：静态方法丢失 —— HOC 返回的是新组件，原组件的静态方法没了
+WrappedComponent.staticMethod = () => {};
+// ❌ withAuth(Component).staticMethod === undefined
+// 解决：手动拷贝，或用 hoist-non-react-statics 库
+
+// 坑 2：ref 传不到被包裹组件 —— ref 不是普通 prop
+const ref = useRef();
+const Enhanced = withAuth(Inner);
+<Enhanced ref={ref} />;   // ❌ ref 指向 HOC 的 wrapper，不是 Inner
+// 解决：用 forwardRef 透传；React 19 起 ref 可作普通 prop 直接传
+
+// 坑 3：displayName 缺失 —— DevTools 里会显示一堆 <Anonymous>
+AuthWrapper.displayName = `withAuth(${WrappedComponent.displayName || WrappedComponent.name})`;
+```
+
+### 5. 逻辑复用三方案对比（重点）
+
+同一个"鼠标位置"逻辑，三种写法并存了多年：
+
+```jsx
+// HOC
+const WithMouse = withMouse(Component);
+// Render Props
+<Mouse render={pos => <Component {...pos} />} />;
+// Hook（推荐）
+function Comp() {
+    const { x, y } = useMouse();
+    return <Component x={x} y={y} />;
+}
+```
+
+| 维度 | HOC | Render Props | 自定义 Hook |
+|------|-----|--------------|-------------|
+| 写法 | `withX(Component)` | `<X render={x => ...} />` | `const x = useX()` |
+| 嵌套 | 层层包裹（wrapper hell） | 回调嵌套 | 扁平 |
+| 数据流向 | 隐式注入 props | 显式传参 | 显式返回值 |
+| props 冲突 | 易冲突（HOC 注入的 props 名） | 无 | 无（不碰 props） |
+| TypeScript | 类型推导困难 | 一般 | 友好 |
+| 适用时代 | class 时代主流 | class/hooks 早期 | **现代主流** |
+
+### 6. 适配场景与现状
+
+- **仍用 HOC 的场景**：维护老代码、第三方库（Redux 的 `connect`、React Router 的 `withRouter`）、需要"装饰器式"统一包裹。
+- **新代码**：优先用自定义 Hook。HOC 的"隐式 props 注入"在大型项目里是类型与可追溯性的灾难。
+- **局限**：HOC 把"逻辑"和"组件实例"绑死，无法在组件内按需调用、无法灵活组合——这正是 Hooks 取代它的根本原因。
+
+## 十二、组件封装的进阶
+
+### 1. 问题来源
+
+组件写得越多，越会撞上同一组问题：props 膨胀到二三十个、想加个功能就得改一堆地方、同一个组件在 A 场景能用 B 场景不能用、逻辑与样式耦合死。**封装的进阶，本质是设计"可复用、可组合、可扩展"的组件 API**。
+
+### 2. 受控 vs 非受控
+
+```jsx
+// 受控：值由父组件完全控制
+<Input value={value} onChange={setValue} />
+
+// 非受控：值由组件内部自管，通过 ref 读取
+<Input defaultValue="" ref={inputRef} />
+```
+
+**进阶：一个组件同时支持两种模式**（antd / Radix 都这么做）：
+
+```jsx
+function Input({ value, defaultValue, onChange }) {
+    const [internal, setInternal] = useState(defaultValue);
+    const isControlled = value !== undefined;              // 是否受控的判断依据
+    const realValue = isControlled ? value : internal;
+    const handleChange = (e) => {
+        if (!isControlled) setInternal(e.target.value);    // 非受控才自更新
+        onChange?.(e.target.value);
+    };
+    return <input value={realValue} onChange={handleChange} />;
+}
+// 父组件传 value → 受控；不传 → 非受控。灵活且符合直觉。
+```
+
+### 3. 复合组件（Compound Components）
+
+像 `<select><option/></select>`、`<Tabs><Tabs.Tab/></Tabs>` 这种**一套组件协作完成一个功能**的模式：
+
+```jsx
+// 用法：调用方只负责组装，不关心状态怎么流转
+<Tabs defaultActive="1">
+    <Tabs.List>
+        <Tabs.Tab id="1">详情</Tabs.Tab>
+        <Tabs.Tab id="2">评论</Tabs.Tab>
+    </Tabs.List>
+    <Tabs.Panels>
+        <Tabs.Panel id="1">详情内容</Tabs.Panel>
+        <Tabs.Panel id="2">评论内容</Tabs.Panel>
+    </Tabs.Panels>
+</Tabs>
+```
+
+实现靠 **Context 共享状态 + 子组件隐式订阅**：
+
+```jsx
+const TabsContext = createContext(null);
+
+function Tabs({ defaultActive, children }) {
+    const [active, setActive] = useState(defaultActive);
+    return (
+        <TabsContext.Provider value={{ active, setActive }}>
+            {children}
+        </TabsContext.Provider>
+    );
+}
+
+Tabs.Tab = function Tab({ id, children }) {
+    const { active, setActive } = useContext(TabsContext);
+    return (
+        <button onClick={() => setActive(id)} aria-selected={active === id}>
+            {children}
+        </button>
+    );
+};
+```
+
+**优点：** API 声明式、结构清晰、子组件的顺序与数量由调用方决定；**局限：** 子组件必须在 Provider 内、Context 变化会让所有订阅的子组件重渲染。
+
+### 4. Headless UI / 逻辑与 UI 分离
+
+把"行为逻辑"和"视觉样式"彻底拆开：组件暴露状态与方法，UI 由调用方自行绘制。这是当前最受推崇的模式（TanStack Table、Radix、Headless UI、dnd-kit 都走这条路）。
+
+```jsx
+// useTabs：只管逻辑，一个 JSX 都不返回
+function useTabs({ defaultActive }) {
+    const [active, setActive] = useState(defaultActive);
+    const getTabProps = (id) => ({
+        onClick: () => setActive(id),
+        'aria-selected': active === id,
+    });
+    const getPanelProps = (id) => ({ hidden: active !== id });
+    return { active, setActive, getTabProps, getPanelProps };
+}
+
+// 调用方：逻辑来自 hook，样式完全自定义
+function MyTabs() {
+    const { getTabProps, getPanelProps } = useTabs({ defaultActive: '1' });
+    return (
+        <>
+            <button {...getTabProps('1')} className="my-btn">详情</button>
+            <button {...getTabProps('2')} className="my-btn">评论</button>
+            <div {...getPanelProps('1')}>详情内容</div>
+            <div {...getPanelProps('2')}>评论内容</div>
+        </>
+    );
+}
+```
+
+**对比复合组件：** Headless 比 Compound 更解耦——同一套逻辑能套上完全不同的 UI（A 团队用 antd 风格、B 团队用自定义风格），逻辑零改动。
+
+### 5. 范式选型对比
+
+| 范式 | 灵活性 | 学习成本 | 典型代表 | 适合场景 |
+|------|--------|----------|----------|----------|
+| 单大组件 + 一堆 props | 低 | 低 | 早期组件 | 简单、固定场景 |
+| 受控 / 非受控双模式 | 中 | 中 | antd Form | 表单、需被外部调度 |
+| 复合组件 | 中高 | 中 | antd Tabs/Select | 一套协作组件 |
+| Render Props | 高 | 中高 | 早期 downshift | 动态渲染 |
+| **Headless Hook** | **最高** | 高 | TanStack / Radix | **逻辑复用 + UI 定制** |
+
+### 6. 封装的原则与局限
+
+- **稳定 API、内部可变**：对外 props 一旦发布尽量不破坏，内部实现随便重构。
+- **合理默认 + 可覆盖**：80% 场景开箱即用，20% 场景能通过 props / classNames 覆盖。
+- **组合优于配置**：与其一个组件 50 个 props，不如拆成几个可组合的小组件 / hook。
+- **局限**：过度抽象比不抽象更糟——只为"将来可能"的复用做 Headless，会让简单组件变得难用。
+
+## 十三、自定义 Hooks
+
+### 1. 问题来源
+
+组件里反复出现的逻辑（防抖、请求、监听、持久化）、散落在各处的副作用、难以单测的副作用——自定义 Hook 是 React 官方推荐的逻辑复用单元，也是前面 HOC / Render Props 的现代替代品。
+
+### 2. 定义与规则
+
+自定义 Hook 是**以 `use` 开头、内部可调用其他 Hook 的普通函数**。它必须遵守 Hooks 规则（顶层调用、不能放条件里）——因为本质就是在组件里执行，借用的是 React 的 Hooks 链表（见第五章）。
+
+### 3. 经典实现
+
+```jsx
+// useDebounce：值变化后延迟 N ms 才生效
+function useDebounce(value, delay = 300) {
+    const [debounced, setDebounced] = useState(value);
+    useEffect(() => {
+        const timer = setTimeout(() => setDebounced(value), delay);
+        return () => clearTimeout(timer);    // 每次重新计时，cleanup 是关键
+    }, [value, delay]);
+    return debounced;
+}
+
+// useLocalStorage：带持久化的状态
+function useLocalStorage(key, initial) {
+    const [value, setValue] = useState(() => {
+        try {
+            const raw = localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : initial;
+        } catch {
+            return initial;
+        }
+    });
+    useEffect(() => {
+        localStorage.setItem(key, JSON.stringify(value));
+    }, [key, value]);
+    return [value, setValue];
+}
+
+// useEventListener：自动绑定 + 卸载清理（防内存泄漏）
+function useEventListener(type, handler, el = window) {
+    const saved = useRef(handler);
+    useEffect(() => { saved.current = handler; });      // 始终持有最新 handler
+    useEffect(() => {
+        const listener = (e) => saved.current(e);
+        el.addEventListener(type, listener);
+        return () => el.removeEventListener(type, listener);
+    }, [type, el]);
+}
+
+// useFetch：数据请求的 loading / error / data 三态
+function useFetch(url) {
+    const [state, setState] = useState({ data: null, loading: true, error: null });
+    useEffect(() => {
+        let cancelled = false;                          // 防竞态：卸载 / URL 变了就别再 setState
+        setState((s) => ({ ...s, loading: true, error: null }));
+        fetch(url)
+            .then((r) => r.json())
+            .then((data) => {
+                if (!cancelled) setState({ data, loading: false, error: null });
+            })
+            .catch((error) => {
+                if (!cancelled) setState((s) => ({ ...s, loading: false, error }));
+            });
+        return () => { cancelled = true; };
+    }, [url]);
+    return state;
+}
+
+// usePrevious：拿到上一次 render 的值
+function usePrevious(value) {
+    const ref = useRef();
+    useEffect(() => { ref.current = value; });          // render 后才更新 → 下次返回的是"上一次"
+    return ref.current;
+}
+```
+
+### 4. 设计原则
+
+- **单一职责**：一个 hook 只解决一类问题，`useFetch` 别顺带管表单。
+- **返回值形态**：值少用数组（`const [v, setV] = useState`）、值多用对象（`const { data, loading, error } = useFetch`），便于解构扩展。
+- **依赖要诚实**：`useEffect` 依赖数组必须写全，否则闭包陷阱；不确定就上 `eslint-plugin-react-hooks`。
+- **SSR 兼容**：涉及 `window` / `document` / `localStorage` 的，首次渲染在服务端会报错，需判 `typeof window !== 'undefined'` 或把副作用放进 effect。
+
+### 5. 复用方案对比（呼应第十一章）
+
+自定义 Hook 相对 HOC 的根本优势：**逻辑可在组件内任意位置、按任意顺序、任意次组合调用**，而 HOC 是组件级包裹、只能整提整包。
+
+```jsx
+// 多个逻辑能自然组合 —— HOC 做不到这么干净
+function Page() {
+    const { user } = useAuth();
+    const debouncedKey = useDebounce(keyword);
+    const { data } = useFetch(`/api?q=${debouncedKey}`);
+    useEventListener('keydown', onKey);
+    // ...
+}
+```
+
+### 6. 局限与反模式
+
+- **过度抽象**：只在一处用到的逻辑提成 hook 反而增加跳转成本，"规则三"（出现三次再抽象）同样适用。
+- **闭包陷阱**：依赖数组漏写，handler 捕获的是旧 state（上面 `useEventListener` 用 `useRef` 规避）。
+- **不是万能**：纯 UI 展示逻辑、与 React 状态无关的工具函数，放 `utils` 普通函数即可，不必强行 `use`。
+
+### 7. 成熟生态
+
+- **ahooks**（阿里）：300+ 常用 hook，中文友好，业务覆盖最全。
+- **react-use**：社区老牌，覆盖广。
+- **@tanstack/react-query / swr**：服务端状态（请求、缓存、重试）的工业级方案——这种场景别自己写 `useFetch`，直接用它们。
+
 ## 总结
 
-React 的核心架构可以概括为：
+React 进阶可以分两层来理解——**底层原理**决定它为什么这么设计，**工程实践**决定你怎么把它用好。
 
 ```
-调度（Scheduler）→ 协调（Reconciler）→ 渲染（Renderer）
-  优先级管理        Fiber 树构建         具体平台更新
-  时间切片          Diff 算法           DOM / Native
+【底层原理】 调度（Scheduler）→ 协调（Reconciler）→ 渲染（Renderer）
+  · Fiber 让渲染可中断、可恢复，是并发的基石
+  · Diff 三假设把复杂度压到 O(n)
+  · Hooks 链表决定了"必须在顶层按顺序调用"
+  · Lane 模型 + 时间切片实现了优先级调度
+
+【工程实践】 把原理落到日常
+  · 性能优化：先 Profiler 度量，再做重渲染治理（memo / 状态下移）、长列表虚拟化、并发降级
+  · 高阶组件：理解其历史价值与三方案对比，新代码优先 Hook
+  · 组件封装：受控 / 非受控、复合组件、Headless，按可复用性选型
+  · 自定义 Hooks：现代逻辑复用的标准答案，注意闭包与依赖
 ```
 
-**React 16 — Fiber** 解决了渲染可中断的问题；**React 16.8 — Hooks** 让函数组件拥有完整能力；**React 18 — 并发模式** 实现了优先级调度；**React 19 — Server Components** 将组件执行延伸到服务端。
+**版本里程碑：** React 16 — Fiber 解决渲染可中断；React 16.8 — Hooks 让函数组件拥有完整能力；React 18 — 并发模式实现优先级调度；React 19 — Server Components 与 React Compiler 将组件执行延伸到服务端、把记忆化交给编译器。
 
-理解 React 源码的关键入口：
+理解 React 的关键入口：
 
 1. `ReactFiberWorkLoop.js` — 调度核心，理解 workLoop
 2. `ReactFiberBeginWork.js` — render 阶段，理解组件处理
 3. `ReactFiberHooks.js` — Hooks 实现，理解链表与闭包
 4. `ReactFiberCommitWork.js` — commit 阶段，理解副作用执行
+5. 业务实践入口 — React DevTools Profiler（性能）、ahooks / Radix（组件与 Hook 范式）

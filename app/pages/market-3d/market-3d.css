@@ -1,0 +1,81 @@
+/* 实时金融 3D 行情：宽屏左右分栏（图例 + 舞台），窄屏堆叠 */
+.market-3d__body {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.market-3d__legend {
+    width: 240px;
+    flex-shrink: 0;
+}
+
+.market-3d__stage {
+    flex: 1;
+    min-width: 0;
+}
+
+.market-stage {
+    height: 100%;
+}
+
+.market-stage__canvas {
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    background: radial-gradient(ellipse at 50% 42%, rgba(22, 119, 255, 0.1), transparent 72%);
+}
+
+.market-stage__canvas:active {
+    cursor: grabbing;
+}
+
+/* 连接中遮罩 */
+.market-stage__mask {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(2px);
+    letter-spacing: 1px;
+}
+
+/* hover OHLC tooltip：fixed 跟随鼠标视口坐标 */
+.market-stage__tooltip {
+    position: fixed;
+    z-index: 20;
+    pointer-events: none;
+    transform: translate(14px, 14px);
+    min-width: 132px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.86);
+    color: #fff;
+    font-size: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.market-stage__tooltip-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    line-height: 1.7;
+}
+
+.market-stage__tooltip-row span {
+    opacity: 0.6;
+}
+
+/* 窄屏：图例与舞台纵向堆叠 */
+@media (max-width: 900px) {
+    .market-3d__body {
+        flex-direction: column;
+    }
+
+    .market-3d__legend {
+        width: 100%;
+    }
+}

@@ -2,12 +2,13 @@ import { Outlet, useLocation, useNavigate, Link } from 'react-router';
 import { useThemeMode } from '../../app/theme/ThemeProvider';
 import { author } from '../../app/blog/author';
 import HeaderSearch from './HeaderSearch';
+import SeasonSwitcher from './SeasonSwitcher';
 
 const NAV_ITEMS = [
-    { key: 'home', label: '首页', path: '/' },
-    { key: 'categories', label: '分类', path: '/categories' },
-    { key: 'projects', label: '项目', path: '/projects' },
-    { key: 'about', label: '关于', path: '/about' },
+    { key: 'home', label: '首页', path: '/', num: '01' },
+    { key: 'categories', label: '分类', path: '/categories', num: '02' },
+    { key: 'projects', label: '项目', path: '/projects', num: '03' },
+    { key: 'about', label: '关于', path: '/about', num: '04' },
 ];
 
 function BlogLayout() {
@@ -34,6 +35,7 @@ function BlogLayout() {
                             className={`blog-nav-link${selectedKey === item.key ? ' blog-nav-link-active' : ''}`}
                             onClick={() => navigate(item.path)}
                         >
+                            <span className="blog-nav-num" aria-hidden="true">{item.num}</span>
                             {item.label}
                         </button>
                     ))}
@@ -41,6 +43,7 @@ function BlogLayout() {
 
                 <div className="blog-header-actions">
                     <HeaderSearch />
+                    <SeasonSwitcher />
                     <button
                         type="button"
                         className="blog-theme-toggle"

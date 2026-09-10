@@ -39,7 +39,7 @@ export function Toolbar({ controller }: ToolbarProps) {
                         <Tooltip title="重做 (Ctrl+Y)">
                             <Button icon={<RedoOutlined />} onClick={handleRedo} />
                         </Tooltip>
-                        <Divider type="vertical" />
+                        <Divider orientation="vertical" />
                         <Tooltip title="缩小">
                             <Button icon={<ZoomOutOutlined />} onClick={() => handleZoom('out')} />
                         </Tooltip>
